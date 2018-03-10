@@ -2,6 +2,6 @@ import {bootstrap} from '#/main/core/scaffolding/bootstrap'
 
 import {SimpleWidget} from '#/main/core/widgets/simple/components/widget'
 
-console.log('coucou')
+console.log('SimpleWidget')
 
-bootstrap('.simple-widget', SimpleWidget)
+bootstrap('.simple-widget-container', SimpleWidget)

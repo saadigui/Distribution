@@ -12,6 +12,8 @@ import {MODAL_EDIT_WIDGET} from '#/main/core/tools/home/editor/components/modal/
 import {Widget} from '#/main/core/tools/home/components/widget'
 import {actions} from '#/main/core/tools/home/editor/actions'
 
+import {EmbeddedApp} from '#/main/app/components/embedded-app'
+
 import {getWidget} from '#/main/core/widgets'
 
 const WidgetEditor = props =>
@@ -75,7 +77,7 @@ class EditorComponent extends Component {
         <WidgetEditor
           id="id2"
           title="My widget title 2"
-          insert={() => props.add(1)}
+          insert={() => this.props.add(1)}
           edit={this.props.edit}
           delete={this.props.delete}
         />
@@ -87,7 +89,15 @@ class EditorComponent extends Component {
           {trans('add_widget', {}, 'home')}
         </button>
 
-        <div className="simple-widget" />
+        <EmbeddedApp
+          name="list-widget"
+          path="#/main/core/widgets/list"
+        />
+
+        <EmbeddedApp
+          name="simple-widget"
+          path="#/main/core/widgets/simple"
+        />
       </div>
     )
   }
