@@ -71,7 +71,7 @@ config.externals = shared.externals()
 
 // for webpack dynamic import
 // override name for non entry chunk files
-//config.output.chunkFilename = '[name].[chunkhash].js'
+// todo : find a way to use versioning
 config.output.chunkFilename = '[name].js'
 
 // export the final configuration

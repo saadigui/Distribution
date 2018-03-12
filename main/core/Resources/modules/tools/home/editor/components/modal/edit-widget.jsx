@@ -60,6 +60,13 @@ const EditWidgetModal = props =>
             ]
           }
         ]
+      }, {
+        id: 'parameters',
+        icon: 'fa fa-fw fa-cog',
+        title: trans('parameters'),
+        fields: [
+
+        ]
       }
     ]}
   />

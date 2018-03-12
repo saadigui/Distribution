@@ -60,7 +60,7 @@ WidgetEditor.propTypes = {
 
 class EditorComponent extends Component {
   componentDidMount() {
-    getWidget()
+    getWidget('simple')
   }
 
   render() {
@@ -89,19 +89,21 @@ class EditorComponent extends Component {
           {trans('add_widget', {}, 'home')}
         </button>
 
-        <EmbeddedApp
-          name="list-widget"
-          path="#/main/core/widgets/list"
-        />
-
-        <EmbeddedApp
-          name="simple-widget"
-          path="#/main/core/widgets/simple"
-        />
+        <div className="simple-widget-container" />
       </div>
     )
   }
 }
+
+/*<EmbeddedApp
+  name="list-widget"
+  entry="claroline-distribution-main-core-list-widget"
+/>
+
+<EmbeddedApp
+name="simple-widget"
+entry="claroline-distribution-main-core-simple-widget"
+/>*/
 
 /*const EditorComponent = props => {
   getWidget()

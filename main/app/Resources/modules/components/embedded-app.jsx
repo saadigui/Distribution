@@ -1,6 +1,8 @@
 import React, {Component} from 'react'
 import {PropTypes as T} from 'prop-types'
 
+import {platformConfig} from '#/main/core/platform'
+
 /**
  * Mounts an entire React application (components + store) inside another.
  *
@@ -8,11 +10,17 @@ import {PropTypes as T} from 'prop-types'
  */
 class EmbeddedApp extends Component {
   componentDidMount() {
-    // Load application source code
-    import(''+this.props.path).then(module => {
-      console.log(module)
+    const assets = platformConfig('webpack')
 
-    }).catch(error => 'An error occurred while loading the component')
+    if (assets && assets[this.props.entry]) {
+      // Load application source code
+      import(''+assets[this.props.entry]['js']).then(module => {
+        console.log(module)
+
+      }).catch(error => 'An error occurred while loading the component')
+    } else {
+      throw new Error(`Can not find source file for entry "${this.props.entry}".`)
+    }
   }
 
   render() {
@@ -28,7 +36,7 @@ EmbeddedApp.propTypes = {
    * The name of the app.
    */
   name: T.string.isRequired,
-  path: T.string.isRequired,
+  entry: T.string.isRequired,
   styles: T.string
 }
 

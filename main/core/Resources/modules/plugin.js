@@ -13,8 +13,11 @@ const coreConfiguration = {
         description: ''
       },
       context: ['desktop', 'workspace'],
-      app: '#/main/core/widgets/simple',
-      styles: 'claroline-distribution-main-core-profile-widget'
+      app: () => {
+        // We need to explicitly declare it to be grabbed in the webpack compilation
+        // Without it the chunk is not generated
+        return import(/* webpackChunkName: "simple-widget" */ '#/main/core/widgets/simple')
+      }
     }, {
       name: 'profile',
       meta: {
@@ -25,7 +28,7 @@ const coreConfiguration = {
     }, {
       name: 'list',
       meta: {
-        icon: 'fa fa-fw fa-user-circle-o',
+        icon: 'fa fa-fw fa-list',
         description: ''
       }
     }
