@@ -3,7 +3,6 @@
 namespace Claroline\CoreBundle\API\Serializer;
 
 use Claroline\CoreBundle\Entity\User;
-use Claroline\CoreBundle\Library\Asset\Webpack;
 use Claroline\CoreBundle\Library\Configuration\PlatformConfigurationHandler;
 use Claroline\CoreBundle\Manager\VersionManager;
 use JMS\DiExtraBundle\Annotation as DI;
@@ -24,9 +23,6 @@ class PlatformSerializer
     /** @var RequestStack */
     private $requestStack;
 
-    /** @var Webpack */
-    private $webpack;
-
     /** @var PlatformConfigurationHandler */
     private $config;
 
@@ -40,7 +36,6 @@ class PlatformSerializer
      *     "env"            = @DI\Inject("%kernel.environment%"),
      *     "tokenStorage"   = @DI\Inject("security.token_storage"),
      *     "requestStack"   = @DI\Inject("request_stack"),
-     *     "webpack"        = @DI\Inject("claroline.asset.webpack"),
      *     "config"         = @DI\Inject("claroline.config.platform_config_handler"),
      *     "versionManager" = @DI\Inject("claroline.manager.version_manager"),
      *     "userSerializer" = @DI\Inject("claroline.serializer.user")
@@ -49,7 +44,6 @@ class PlatformSerializer
      * @param string                       $env,
      * @param TokenStorageInterface        $tokenStorage
      * @param RequestStack                 $requestStack
-     * @param Webpack                      $webpack
      * @param PlatformConfigurationHandler $config
      * @param VersionManager               $versionManager
      */
@@ -57,14 +51,12 @@ class PlatformSerializer
         $env,
         TokenStorageInterface $tokenStorage,
         RequestStack $requestStack,
-        Webpack $webpack,
         PlatformConfigurationHandler $config,
         VersionManager $versionManager
     ) {
         $this->env = $env;
         $this->tokenStorage = $tokenStorage;
         $this->requestStack = $requestStack;
-        $this->webpack = $webpack;
         $this->config = $config;
         $this->versionManager = $versionManager;
     }
@@ -104,9 +96,6 @@ class PlatformSerializer
                 'name' => $this->config->getParameter('theme'),
                 'main' => 'path_to_bootstrap',
             ],
-            // exposes the current webpack build.
-            // this is required to know which version to target with dynamic loading
-            'assets' => $this->webpack->getAssets(),
             'locale' => [
                 'current' => $locale,
                 'available' => array_keys($this->config->getParameter('locales')),
