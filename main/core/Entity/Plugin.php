@@ -27,7 +27,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Plugin
 {
-    use Uuid;
+    //use Uuid;
 
     /**
      * @ORM\Id

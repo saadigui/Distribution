@@ -8,41 +8,37 @@ const coreConfiguration = {
   widgets: [
     {
       name: 'simple',
-      meta: {
-        icon: 'fa fa-fw fa-pencil',
-        description: ''
-      },
-      context: ['desktop', 'workspace'],
       load: () => {
         // We need to explicitly declare it to be grabbed in the webpack compilation
         // Without it the chunk is not generated
-        return import(/* webpackChunkName: "simple-widget" */ '#/main/core/widgets/simple')
+        return import(/* webpackChunkName: "simple-widget" */ '#/main/core/widget/types/simple')
       }
     }, {
-      name: 'profile',
-      meta: {
-        icon: 'fa fa-fw fa-user-circle-o',
-        description: ''
-      },
-      context: ['desktop', 'workspace']
-    }, {
       name: 'list',
-      meta: {
-        icon: 'fa fa-fw fa-list',
-        description: ''
-      },
-      context: ['desktop', 'workspace'],
       load: () => {
         // We need to explicitly declare it to be grabbed in the webpack compilation
         // Without it the chunk is not generated
-        return import(/* webpackChunkName: "list-widget" */ '#/main/core/widgets/list')
+        return import(/* webpackChunkName: "list-widget" */ '#/main/core/widget/types/list')
       }
     }
   ],
-  widgetSources: [
+  widgetPresets: [
     {
-      name: 'resource',
-      widget: ''
+      name: 'resource-list',
+      widget: 'list',
+      load: () => {
+        // We need to explicitly declare it to be grabbed in the webpack compilation
+        // Without it the chunk is not generated
+        return import(/* webpackChunkName: "resource-list-preset" */ '#/main/core/widget/presets/list/resource')
+      }
+    }, {
+      name: 'user-list',
+      widget: 'list',
+      load: () => {
+        // We need to explicitly declare it to be grabbed in the webpack compilation
+        // Without it the chunk is not generated
+        return import(/* webpackChunkName: "user-list-preset" */ '#/main/core/widget/presets/list/user')
+      }
     }
   ]
 }

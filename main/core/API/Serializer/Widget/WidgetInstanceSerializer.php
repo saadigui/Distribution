@@ -7,6 +7,7 @@ use JMS\DiExtraBundle\Annotation as DI;
 
 /**
  * @DI\Service("claroline.serializer.widget_instance")
+ * @DI\Tag("claroline.serializer")
  */
 class WidgetInstanceSerializer
 {
@@ -18,7 +19,15 @@ class WidgetInstanceSerializer
     public function serialize(WidgetInstance $widgetInstance, array $options = [])
     {
         return [
+            'id' => $widgetInstance->getId(), // todo replace with UUID
+            'title' => $widgetInstance->getName(),
+            'type' => $widgetInstance->getWidget()->getName(),
+            'display' => [
 
+            ],
+            'parameters' => [
+
+            ]
         ];
     }
 

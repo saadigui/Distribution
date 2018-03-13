@@ -7,20 +7,22 @@ import {actions as modalActions} from '#/main/core/layout/modal/actions'
 import {MODAL_DELETE_CONFIRM} from '#/main/core/layout/modal'
 import {TooltipAction} from '#/main/core/layout/button/components/tooltip-action'
 
-import {MODAL_ADD_WIDGET} from '#/main/core/tools/home/editor/components/modal/add-widget'
-import {MODAL_EDIT_WIDGET} from '#/main/core/tools/home/editor/components/modal/edit-widget'
-import {Widget} from '#/main/core/tools/home/components/widget'
+import {Widget} from '#/main/core/widget/components/widget'
+import {WidgetInstance as WidgetInstanceTypes} from '#/main/core/widget/prop-types'
+import {MODAL_ADD_WIDGET} from '#/main/core/widget/modals/components/add-widget'
+import {MODAL_EDIT_WIDGET} from '#/main/core/widget/modals/components//edit-widget'
+
 import {actions} from '#/main/core/tools/home/editor/actions'
 
 import {EmbeddedApp} from '#/main/app/components/embedded-app'
 
-import {getWidget} from '#/main/core/widgets'
+import {getWidget} from '#/main/core/widget/types'
 
 const WidgetEditor = props =>
   <div className="widget-container">
     <div className="widget-actions text-right">
       <TooltipAction
-        id={`add-before-${props.id}`}
+        id={`add-before-${props.instance.id}`}
         className="btn-link-default"
         icon="fa fa-fw fa-plus"
         label={trans('add_widget_before', {}, 'home')}
@@ -32,141 +34,86 @@ const WidgetEditor = props =>
         className="btn-link-default"
         icon="fa fa-fw fa-pencil"
         label={trans('edit')}
-        action={() => props.edit(props.id)}
+        action={() => props.edit(props.instance.id)}
       />
 
       <TooltipAction
-        id={`delete-${props.id}`}
+        id={`delete-${props.instance.id}`}
         className="btn-link-danger"
         icon="fa fa-fw fa-trash-o"
         label={trans('delete')}
-        action={() => props.delete(props.id)}
+        action={() => props.delete(props.instance.id)}
       />
     </div>
 
     <Widget
-      id={props.id}
-      title={props.title}
+      instance={props.instance}
+      context={props.context}
     />
   </div>
 
 WidgetEditor.propTypes = {
-  id: T.string.isRequired,
-  title: T.string,
+  context: T.object.isRequired,
+  instance: T.shape(
+    WidgetInstanceTypes.propTypes
+  ).isRequired,
   insert: T.func.isRequired,
   edit: T.func.isRequired,
   delete: T.func.isRequired
 }
 
-class EditorComponent extends Component {
-  componentDidMount() {
-
-  }
-
-  render() {
-    return (
-      <div>
-        <WidgetEditor
-          id="id1"
-          title="My widget title 1"
-          insert={() => this.props.add(0)}
-          edit={this.props.edit}
-          delete={this.props.delete}
-        />
-
-        <WidgetEditor
-          id="id2"
-          title="My widget title 2"
-          insert={() => this.props.add(1)}
-          edit={this.props.edit}
-          delete={this.props.delete}
-        />
-
-        <button
-          className="btn btn-block btn-primary btn-add"
-          onClick={this.props.add}
-        >
-          {trans('add_widget', {}, 'home')}
-        </button>
-
-        <EmbeddedApp
-          loader={getWidget('simple').load}
-          parameters={{
-            widgetInstance: null,
-            context: null
-          }}
-        />
-
-        <EmbeddedApp
-          loader={getWidget('list').load}
-          parameters={{
-            widgetInstance: null,
-            context: null
-          }}
-        />
-      </div>
-    )
-  }
-}
-
-/*<EmbeddedApp
-  name="list-widget"
-  entry="claroline-distribution-main-core-list-widget"
-/>
-
-<EmbeddedApp
-name="simple-widget"
-entry="claroline-distribution-main-core-simple-widget"
-/>*/
-
-/*const EditorComponent = props => {
-  getWidget()
-
-  return (
-    <div>
+const EditorComponent = props =>
+  <div>
+    {props.widgets.map((widgetInstance, index) =>
       <WidgetEditor
-        id="id1"
-        title="My widget title 1"
-        insert={() => props.add(0)}
-        edit={props.edit}
-        delete={props.delete}
+        key={index}
+        instance={widgetInstance}
+        context={props.context}
+        insert={() => props.addWidget(index)}
+        edit={() => props.editWidget(widgetInstance)}
+        delete={() => props.deleteWidget(widgetInstance)}
       />
+    )}
 
-      <WidgetEditor
-        id="id2"
-        title="My widget title 2"
-        insert={() => props.add(1)}
-        edit={props.edit}
-        delete={props.delete}
-      />
-
-      <button
-        className="btn btn-block btn-primary btn-add"
-        onClick={props.add}
-      >
-        {trans('add_widget', {}, 'home')}
-      </button>
-
-      <div className="simple-widget" />
-    </div>
-  )
-}*/
+    <button
+      className="btn btn-block btn-primary btn-add"
+      onClick={props.addWidget}
+    >
+      {trans('add_widget', {}, 'home')}
+    </button>
+  </div>
 
 EditorComponent.propTypes = {
+  context: T.object.isRequired,
   widgets: T.arrayOf(T.shape({
-    // widget
+    // widget instances
   })).isRequired,
-  add: T.func.isRequired,
-  edit: T.func.isRequired,
-  delete: T.func.isRequired
+  addWidget: T.func.isRequired,
+  editWidget: T.func.isRequired,
+  deleteWidget: T.func.isRequired
 }
 
 const Editor = connect(
   state => ({
-
+    context: {},
+    widgets: [
+      {
+        id: 'id1',
+        type: 'list',
+        title: 'My awesome widget 1',
+        parameters: {}
+      }, {
+        id: 'id2',
+        type: 'simple',
+        title: 'My awesome widget 2',
+        parameters: {
+          content: 'Tchou tchou train'
+        }
+      }
+    ]
   }),
   dispatch => ({
-    add(position) {
+    addWidget(position) {
       dispatch(modalActions.showModal(MODAL_ADD_WIDGET, {
         availableWidgets: [
           {
@@ -189,16 +136,17 @@ const Editor = connect(
         add: (widgetType) => dispatch(actions.addWidget(widgetType, position))
       }))
     },
-    edit() {
+    editWidget(widget) {
       dispatch(modalActions.showModal(MODAL_EDIT_WIDGET, {
-        save: (widget) => true
+        data: widget,
+        save: (updated) => true
       }))
     },
-    delete(widgetId) {
+    deleteWidget(widget) {
       dispatch(modalActions.showModal(MODAL_DELETE_CONFIRM, {
         title: trans('widget_delete_confirm_title', {}, 'home'),
         question: trans('widget_delete_confirm_message', {}, 'home'),
-        handleConfirm: () => dispatch(actions.removeWidget(widgetId))
+        handleConfirm: () => dispatch(actions.removeWidget(widget.id))
       }))
     }
   })

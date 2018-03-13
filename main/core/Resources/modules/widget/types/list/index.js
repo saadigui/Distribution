@@ -1,6 +1,7 @@
+import {makeReducer} from '#/main/core/scaffolding/reducer'
 import {makeListReducer} from '#/main/core/data/list/reducer'
 
-import {ListWidget} from '#/main/core/widgets/list/components/widget'
+import {ListWidget} from '#/main/core/widget/types/list/components/widget'
 
 /**
  * List widget application.
@@ -10,11 +11,12 @@ import {ListWidget} from '#/main/core/widgets/list/components/widget'
  *
  * @constructor
  */
-export const Widget = (widgetInstance, context) => ({
+export const App = (widgetInstance, context) => ({
   name: 'list-widget',
   component: ListWidget,
-  styles: '',
   store: {
+    context: makeReducer({}, {}),
+    config: makeReducer({}, {}),
     list: makeListReducer('list', {}, {}, {
       filterable: widgetInstance.parameters.filterable,
       sortable: widgetInstance.parameters.sortable,
@@ -22,6 +24,8 @@ export const Widget = (widgetInstance, context) => ({
     })
   },
   initialState: () => ({ // function is for retro compatibility with bootstrap
+    context: context,
+    config: widgetInstance.parameters,
     list: {
       pageSize: widgetInstance.parameters.pageSize
     }

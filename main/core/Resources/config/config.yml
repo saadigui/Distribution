@@ -140,6 +140,23 @@ plugin:
           is_displayable_in_desktop: true
           is_displayable_in_workspace: true
 
+        - name: simple
+          class: Claroline\CoreBundle\Entity\Widget\Types\SimpleWidget
+          presets: false
+
+        - name: list
+          class: Claroline\CoreBundle\Entity\Widget\Types\ListWidget
+          presets: true
+
+    widget_presets:
+       - name: resource-list
+         widget: list
+         context: [workspace, desktop]
+
+       - name: user-list
+         widget: list
+         context: [workspace, desktop]
+
     tools:
         - name: home
           class: home

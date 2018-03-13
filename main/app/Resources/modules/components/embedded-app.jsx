@@ -1,5 +1,6 @@
 import React, {Component} from 'react'
 import {PropTypes as T} from 'prop-types'
+import invariant from 'invariant'
 
 import {bootstrap} from '#/main/core/scaffolding/bootstrap'
 import {theme} from '#/main/core/scaffolding/asset'
@@ -21,12 +22,16 @@ class EmbeddedApp extends Component {
       .then(module => {
         // generate the application
         const embeddedApp = module.App(...this.props.parameters)
-
-        this.setState(embeddedApp, () => {
-          bootstrap(`.${this.state.name}-container`, this.state.component, this.state.store || {}, this.state.initialState)
-        })
+        if (embeddedApp) {
+          this.setState(embeddedApp, () => {
+            // append and bootstrap the app
+            bootstrap(`.${this.state.name}-container`, this.state.component, this.state.store, this.state.initialState)
+          })
+        }
       })
-      .catch(error => `An error occurred while loading the EmbeddedApp : ${error}`)
+      .catch(error => {
+        invariant(false, `An error occurred while loading the EmbeddedApp : ${error}`)
+      })
   }
 
   render() {

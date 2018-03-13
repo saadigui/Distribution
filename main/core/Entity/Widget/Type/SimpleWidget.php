@@ -6,9 +6,9 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity()
- * @ORM\Table(name="claro_widget_content")
+ * @ORM\Table(name="claro_widget_simple")
  */
-class ContentWidget
+class SimpleWidget
 {
     /**
      * An unique identifier for the widget.

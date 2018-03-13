@@ -7,6 +7,7 @@ use JMS\DiExtraBundle\Annotation as DI;
 
 /**
  * @DI\Service("claroline.serializer.widget")
+ * @DI\Tag("claroline.serializer")
  */
 class WidgetSerializer
 {

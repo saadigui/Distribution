@@ -60,6 +60,27 @@ class ListWidget
     private $pageSize = 20;
 
     /**
+     * @ORM\Column(type="json_array")
+     *
+     * @var array
+     */
+    private $defaultFilters = [];
+
+    /**
+     * @ORM\Column(type="json_array")
+     *
+     * @var array
+     */
+    private $availableColumns = [];
+
+    /**
+     * @ORM\Column(type="json_array")
+     *
+     * @var array
+     */
+    private $displayedColumns = [];
+
+    /**
      * Get id.
      *
      * @return int
@@ -166,5 +187,45 @@ class ListWidget
     public function setPageSize($pageSize)
     {
         $this->pageSize = $pageSize;
+    }
+
+    /**
+     * Get default filters.
+     *
+     * @return array
+     */
+    public function getDefaultFilters()
+    {
+        return $this->defaultFilters;
+    }
+
+    /**
+     * Set default filters.
+     *
+     * @param array $defaultFilters
+     */
+    public function setDefaultFilters(array $defaultFilters)
+    {
+        $this->defaultFilters = $defaultFilters;
+    }
+
+    /**
+     * Get available columns.
+     *
+     * @return array
+     */
+    public function getAvailableColumns()
+    {
+        return $this->availableColumns;
+    }
+
+    /**
+     * Get displayed columns.
+     *
+     * @return array
+     */
+    public function getDisplayedColumns()
+    {
+        return $this->displayedColumns;
     }
 }

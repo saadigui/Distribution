@@ -31,7 +31,10 @@ class DataList extends Component {
     super(props)
 
     // adds missing default in the definition
-    this.definition = createListDefinition(this.props.definition)
+    this.state = {
+      definition: createListDefinition(this.props.definition)
+    }
+
     // fills missing translations with default ones
     this.translations = merge({}, listConst.DEFAULT_TRANSLATIONS, this.props.translations)
 
@@ -40,6 +43,18 @@ class DataList extends Component {
 
     this.setDisplayMode = this.setDisplayMode.bind(this)
     this.toggleColumn   = this.toggleColumn.bind(this)
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.definition !== nextProps.definition) {
+      this.setState({
+        definition: createListDefinition(nextProps.definition)
+      })
+    }
+
+    if (this.props.display !== nextProps.display) {
+      this.setDisplayMode(nextProps.display ? nextProps.display.current : listConst.DEFAULT_DISPLAY_MODE, false)
+    }
   }
 
   /**
@@ -52,10 +67,10 @@ class DataList extends Component {
     let currentColumns
     if (listConst.DISPLAY_MODES[displayMode].filterColumns) {
       // gets only the displayed columns
-      currentColumns = getDisplayedProps(this.definition)
+      currentColumns = getDisplayedProps(this.state.definition)
     } else {
       // gets all displayable columns
-      currentColumns = getDisplayableProps(this.definition)
+      currentColumns = getDisplayableProps(this.state.definition)
     }
 
     const newState = {
@@ -65,7 +80,7 @@ class DataList extends Component {
 
     if (init) {
       // call to `setState` is not authorized during component mounting
-      this.state = newState
+      this.state = Object.assign({}, this.state, newState)
     } else {
       this.setState(newState)
     }
@@ -110,11 +125,11 @@ class DataList extends Component {
     let columnsTool
     if (this.props.filterColumns && listConst.DISPLAY_MODES[this.state.currentDisplay].filterColumns) {
       // Tools is enabled and the current display supports columns filtering
-      const displayableColumns = getDisplayableProps(this.definition)
+      const displayableColumns = getDisplayableProps(this.state.definition)
       if (1 < displayableColumns.length) {
         columnsTool = {
           current: this.state.currentColumns,
-          available: getDisplayableProps(this.definition),
+          available: getDisplayableProps(this.state.definition),
           toggle: this.toggleColumn.bind(this)
         }
       }
@@ -123,7 +138,7 @@ class DataList extends Component {
     let filtersTool
     if (this.props.filters) {
       filtersTool = Object.assign({}, this.props.filters, {
-        available: getFilterableProps(this.definition)
+        available: getFilterableProps(this.state.definition)
       })
     }
 
@@ -137,14 +152,11 @@ class DataList extends Component {
         displayed: this.props.deleteAction.displayed,
         disabled: this.props.deleteAction.disabled,
         action: typeof this.props.deleteAction.action === 'function' ?
-          (rows) => {
-            /*console.log(rows)*/
-            return this.props.deleteAction.action(
-              rows,
-              trans(this.translations.keys.deleteConfirmTitle, {}, this.translations.domain),
-              transChoice(this.translations.keys.deleteConfirmQuestion, rows.length, {count: rows.length}, this.translations.domain)
-            )
-          } :
+          (rows) => this.props.deleteAction.action(
+            rows,
+            trans(this.translations.keys.deleteConfirmTitle, {}, this.translations.domain),
+            transChoice(this.translations.keys.deleteConfirmQuestion, rows.length, {count: rows.length}, this.translations.domain)
+          ) :
           this.props.deleteAction.action
       })
     }
@@ -163,7 +175,7 @@ class DataList extends Component {
             size:          listConst.DISPLAY_MODES[this.state.currentDisplay].size,
             data:          this.props.data,
             count:         this.props.totalResults,
-            columns:       this.definition.filter(prop => -1 !== this.state.currentColumns.indexOf(prop.name)),
+            columns:       this.state.definition.filter(prop => -1 !== this.state.currentColumns.indexOf(prop.name)),
             sorting:       this.props.sorting,
             selection:     this.props.selection,
             primaryAction: this.props.primaryAction,
