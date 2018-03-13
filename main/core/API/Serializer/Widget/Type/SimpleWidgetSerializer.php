@@ -1,22 +1,22 @@
 <?php
 
-namespace Claroline\CoreBundle\API\Serializer;
+namespace Claroline\CoreBundle\API\Serializer\Widget\Type;
 
-use Claroline\CoreBundle\Entity\Widget\Type\ListWidget;
+use Claroline\CoreBundle\Entity\Widget\Type\SimpleWidget;
 use JMS\DiExtraBundle\Annotation as DI;
 
 /**
- * @DI\Service("claroline.serializer.widget_list")
+ * @DI\Service("claroline.serializer.widget_simple")
  * @DI\Tag("claroline.serializer")
  */
-class ListWidgetSerializer
+class SimpleWidgetSerializer
 {
     public function getClass()
     {
-        return 'Claroline\CoreBundle\Entity\Widget\Types\ListWidget';
+        return 'Claroline\CoreBundle\Entity\Widget\Type\SimpleWidget';
     }
 
-    public function serialize(ListWidget $widget, array $options = [])
+    public function serialize(SimpleWidget $widget, array $options = [])
     {
         return [
             //'fetchUrl' => $widget->getFetchUrl(),
@@ -29,7 +29,7 @@ class ListWidgetSerializer
         ];
     }
 
-    public function deserialize($data, ListWidget $widget, array $options = [])
+    public function deserialize($data, SimpleWidget $widget, array $options = [])
     {
 
         return $widget;

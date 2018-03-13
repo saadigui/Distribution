@@ -13,7 +13,7 @@ const Widget = props =>
     }
 
     <EmbeddedApp
-      loader={getWidget(props.instance.type).load}
+      load={getWidget(props.instance.type).load}
       parameters={[props.instance, props.context]}
     />
   </section>

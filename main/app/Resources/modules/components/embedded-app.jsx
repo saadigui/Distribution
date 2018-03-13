@@ -18,7 +18,7 @@ class EmbeddedApp extends Component {
   }
 
   componentDidMount() {
-    this.props.loader()
+    this.props.load()
       .then(module => {
         // generate the application
         const embeddedApp = module.App(...this.props.parameters)
@@ -49,12 +49,12 @@ class EmbeddedApp extends Component {
 
 
 EmbeddedApp.propTypes = {
-  loader: T.func.isRequired,
-  parameters: T.object
+  load: T.func.isRequired,
+  parameters: T.array
 }
 
 EmbeddedApp.defaultProps = {
-  parameters: {}
+  parameters: []
 }
 
 export {
