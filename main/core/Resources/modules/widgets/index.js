@@ -1,22 +1,12 @@
-
 import {coreConfiguration} from '#/main/core/plugin'
 
 function getWidget(name) {
   const widget = coreConfiguration.widgets.find(widget => widget.name === name)
-  if (widget) {
-    widget
-      .app()
-      .then(module => {
-        console.log(module)
-      })
-      .catch(error => 'An error occurred while loading the component')
-  } else {
-
+  if (!widget) {
+    throw new Error(`You have requested a non existent widget named ${name}`)
   }
-  /*import(/!* webpackChunkName: "simple-widget" *!/ '#/main/core/widgets/simple').then(module => {
-    console.log(module)
 
-  }).catch(error => 'An error occurred while loading the component')*/
+  return widget
 }
 
 export {

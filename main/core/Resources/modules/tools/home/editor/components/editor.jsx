@@ -60,7 +60,7 @@ WidgetEditor.propTypes = {
 
 class EditorComponent extends Component {
   componentDidMount() {
-    getWidget('simple')
+
   }
 
   render() {
@@ -89,7 +89,21 @@ class EditorComponent extends Component {
           {trans('add_widget', {}, 'home')}
         </button>
 
-        <div className="simple-widget-container" />
+        <EmbeddedApp
+          loader={getWidget('simple').load}
+          parameters={{
+            widgetInstance: null,
+            context: null
+          }}
+        />
+
+        <EmbeddedApp
+          loader={getWidget('list').load}
+          parameters={{
+            widgetInstance: null,
+            context: null
+          }}
+        />
       </div>
     )
   }

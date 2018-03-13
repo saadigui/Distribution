@@ -13,7 +13,7 @@ const coreConfiguration = {
         description: ''
       },
       context: ['desktop', 'workspace'],
-      app: () => {
+      load: () => {
         // We need to explicitly declare it to be grabbed in the webpack compilation
         // Without it the chunk is not generated
         return import(/* webpackChunkName: "simple-widget" */ '#/main/core/widgets/simple')
@@ -30,7 +30,19 @@ const coreConfiguration = {
       meta: {
         icon: 'fa fa-fw fa-list',
         description: ''
+      },
+      context: ['desktop', 'workspace'],
+      load: () => {
+        // We need to explicitly declare it to be grabbed in the webpack compilation
+        // Without it the chunk is not generated
+        return import(/* webpackChunkName: "list-widget" */ '#/main/core/widgets/list')
       }
+    }
+  ],
+  widgetSources: [
+    {
+      name: 'resource',
+      widget: ''
     }
   ]
 }

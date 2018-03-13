@@ -1,7 +1,8 @@
 import React, {Component} from 'react'
 import {PropTypes as T} from 'prop-types'
 
-import {platformConfig} from '#/main/core/platform'
+import {bootstrap} from '#/main/core/scaffolding/bootstrap'
+import {theme} from '#/main/core/scaffolding/asset'
 
 /**
  * Mounts an entire React application (components + store) inside another.
@@ -9,35 +10,46 @@ import {platformConfig} from '#/main/core/platform'
  * For instance it's not possible for the 2 apps to communicate.
  */
 class EmbeddedApp extends Component {
+  constructor(props) {
+    super(props)
+
+    this.state = {}
+  }
+
   componentDidMount() {
-    const assets = platformConfig('webpack')
+    this.props.loader()
+      .then(module => {
+        // generate the application
+        const embeddedApp = module.App(...this.props.parameters)
 
-    if (assets && assets[this.props.entry]) {
-      // Load application source code
-      import(''+assets[this.props.entry]['js']).then(module => {
-        console.log(module)
-
-      }).catch(error => 'An error occurred while loading the component')
-    } else {
-      throw new Error(`Can not find source file for entry "${this.props.entry}".`)
-    }
+        this.setState(embeddedApp, () => {
+          bootstrap(`.${this.state.name}-container`, this.state.component, this.state.store || {}, this.state.initialState)
+        })
+      })
+      .catch(error => `An error occurred while loading the EmbeddedApp : ${error}`)
   }
 
   render() {
     return (
-      <div className={`${this.props.name}-container`} />
+      <sections className="embedded-app">
+        <div className={`${this.state.name}-container`} />
+
+        {this.state.styles && 0 !== this.state.styles.length &&
+          <link rel="stylesheet" type="text/css" href={theme(this.state.styles)} />
+        }
+      </sections>
     )
   }
 }
 
 
 EmbeddedApp.propTypes = {
-  /**
-   * The name of the app.
-   */
-  name: T.string.isRequired,
-  entry: T.string.isRequired,
-  styles: T.string
+  loader: T.func.isRequired,
+  parameters: T.object
+}
+
+EmbeddedApp.defaultProps = {
+  parameters: {}
 }
 
 export {
