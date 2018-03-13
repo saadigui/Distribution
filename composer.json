@@ -43,7 +43,7 @@
         "jms/di-extra-bundle": "1.5.0",
         "jms/security-extra-bundle": "1.5.1",
         "jms/serializer-bundle": "0.13.0",
-        "jms/twig-js-bundle": "dev-master",
+        "jms/twig-js-bundle": "1.0.0",
         "jms/twig-js": "dev-master as 1.0.2",
         "u01jmg3/ics-parser": "2.0.0",
         "json-quiz/json-quiz": "dev-master",
@@ -69,8 +69,6 @@
         "zendframework/zend-crypt": "2.6.0",
         "zendframework/zend-stdlib": "2.7.7",
         "zenstruck/form-bundle": "1.5.1",
-        "innova/angular-js-bundle": "5.1.0",
-        "innova/angular-ui-resource-picker-bundle": "6.0.0",
         "innova/angular-ui-tinymce-bundle": "5.1.1",
         "ocramius/proxy-manager": "1.0.2",
         "ramsey/uuid": "~3.5",
@@ -132,6 +130,7 @@
     "autoload": {
         "psr-4": {
             "Claroline\\CoreBundle\\": "main/core/",
+            "Claroline\\AppBundle\\": "main/app/",
             "Claroline\\BundleRecorder\\": "main/recorder/",
             "Claroline\\InstallationBundle\\": "main/installation/",
             "Claroline\\MigrationBundle\\": "main/migration/",
@@ -199,6 +198,7 @@
             "Claroline\\MigrationBundle\\ClarolineMigrationBundle",
             "Claroline\\KernelBundle\\ClarolineKernelBundle",
             "Claroline\\CoreBundle\\ClarolineCoreBundle",
+            "Claroline\\AppBundle\\ClarolineAppBundle",
             "Claroline\\AgendaBundle\\ClarolineAgendaBundle",
             "FormaLibre\\ReservationBundle\\FormaLibreReservationBundle",
             "Claroline\\ImagePlayerBundle\\ClarolineImagePlayerBundle",

@@ -202,7 +202,7 @@ tinymce.claroline.mentionsItem = function (item) {
   return '<li>' +
   '<a href="javascript:;"><span class="user-picker-dropdown-avatar">' + avatar + '</span>' +
   '<span class="user-picker-dropdown-name">' + item.name + '</span>' +
-  '<small class="user-picker-avatar-mail text-muted">(' + item.mail + ')</small></a>' +
+  '<small class="user-picker-avatar-email text-muted">(' + item.email + ')</small></a>' +
   '</li>'
 }
 
@@ -223,12 +223,19 @@ tinymce.claroline.mentionsInsert = function (item) {
 var homeTheme = document.getElementById('homeTheme')
 var themeCSS = homeTheme.innerText || homeTheme.textContent
 
+// remap locale (we only have the short version without localization part)
+const currentLocale = home.locale.trim()
+const tinyMceLocale = {
+  en: 'en_GB',
+  fr: 'fr_FR'
+}
+
 tinymce.claroline.configuration = {
   'paste_data_images': true,
   'relative_urls': false,
   'remove_script_host': false,
   'theme': 'modern',
-  'language': home.locale.trim(),
+  'language': tinyMceLocale[currentLocale] || currentLocale,
   'browser_spellcheck': true,
   'autoresize_min_height': 100,
   'autoresize_max_height': 500,

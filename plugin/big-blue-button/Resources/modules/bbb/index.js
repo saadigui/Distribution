@@ -1,9 +1,4 @@
-import React from 'react'
 import cloneDeep from 'lodash/cloneDeep'
-import {
-  hashHistory as history,
-  HashRouter as Router
-} from 'react-router-dom'
 
 import {bootstrap} from '#/main/core/scaffolding/bootstrap'
 import {makeResourceReducer} from '#/main/core/resource/reducer'
@@ -23,10 +18,8 @@ bootstrap(
   // app DOM container (also holds initial app data as data attributes)
   '.bbb-container',
 
-  // app main component (accepts either a `routedApp` or a `ReactComponent`)
-  () => React.createElement(Router, {
-    history: history
-  }, React.createElement(BBBResource)),
+  // app main component
+  BBBResource,
 
   // app store configuration
   makeResourceReducer({}, {

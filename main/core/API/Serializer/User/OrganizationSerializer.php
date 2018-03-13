@@ -2,12 +2,12 @@
 
 namespace Claroline\CoreBundle\API\Serializer\User;
 
-use Claroline\CoreBundle\API\Options;
-use Claroline\CoreBundle\API\Serializer\SerializerTrait;
+use Claroline\AppBundle\API\Options;
+use Claroline\AppBundle\API\Serializer\SerializerTrait;
+use Claroline\AppBundle\Persistence\ObjectManager;
 use Claroline\CoreBundle\Entity\Organization\Location;
 use Claroline\CoreBundle\Entity\Organization\Organization;
 use Claroline\CoreBundle\Entity\User;
-use Claroline\CoreBundle\Persistence\ObjectManager;
 use JMS\DiExtraBundle\Annotation as DI;
 
 /**
@@ -50,6 +50,7 @@ class OrganizationSerializer
             'name' => $organization->getName(),
             'code' => $organization->getCode(),
             'email' => $organization->getEmail(),
+            'type' => $organization->getType(),
             'parent' => !empty($organization->getParent()) ? [
                 'id' => $organization->getParent()->getUuid(),
                 'name' => $organization->getParent()->getName(),
@@ -85,7 +86,9 @@ class OrganizationSerializer
     {
         $this->sipe('name', 'setName', $data, $organization);
         $this->sipe('code', 'setCode', $data, $organization);
-        $this->sipe('code', 'setEmail', $data, $organization);
+        $this->sipe('email', 'setEmail', $data, $organization);
+        $this->sipe('type', 'setType', $data, $organization);
+        $this->sipe('vat', 'setVat', $data, $organization);
 
         if (isset($data['parent'])) {
             if (empty($data['parent'])) {
@@ -99,13 +102,24 @@ class OrganizationSerializer
         }
     }
 
-    public function getIdentifiers()
-    {
-        return ['id', 'uuid', 'name', 'code'];
-    }
-
     public function getClass()
     {
         return 'Claroline\CoreBundle\Entity\Organization\Organization';
+    }
+
+    /**
+     * @return string
+     */
+    public function getSchema()
+    {
+        return '#/main/core/organization.json';
+    }
+
+    /**
+     * @return string
+     */
+    public function getSamples()
+    {
+        return '#/main/core/organization';
     }
 }

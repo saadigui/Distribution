@@ -11,7 +11,7 @@
 
 namespace Claroline\CoreBundle\API\Finder\User;
 
-use Claroline\CoreBundle\API\FinderInterface;
+use Claroline\AppBundle\API\FinderInterface;
 use Claroline\CoreBundle\Entity\User;
 use Doctrine\ORM\QueryBuilder;
 use JMS\DiExtraBundle\Annotation as DI;
@@ -80,7 +80,8 @@ class OrganizationFinder implements FinderInterface
                     }
                     break;
                 case 'user':
-                    $qb->leftJoin('obj.users', 'u');
+                    $qb->leftJoin('obj.userOrganizationReference', 'ur');
+                    $qb->leftJoin('ur.user', 'u');
                     $qb->andWhere('u.uuid IN (:userIds)');
                     $qb->setParameter('userIds', is_array($filterValue) ? $filterValue : [$filterValue]);
                     break;

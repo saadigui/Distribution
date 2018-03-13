@@ -11,13 +11,15 @@
 
 namespace Claroline\DropZoneBundle\Manager;
 
-use Claroline\CoreBundle\API\Crud;
+use Claroline\AppBundle\API\Crud;
+use Claroline\AppBundle\Persistence\ObjectManager;
 use Claroline\CoreBundle\Entity\Resource\AbstractResourceEvaluation;
 use Claroline\CoreBundle\Entity\Resource\ResourceUserEvaluation;
 use Claroline\CoreBundle\Entity\User;
+use Claroline\CoreBundle\Library\Configuration\PlatformConfigurationHandler;
 use Claroline\CoreBundle\Manager\Resource\ResourceEvaluationManager;
-use Claroline\CoreBundle\Persistence\ObjectManager;
 use Claroline\DropZoneBundle\Entity\Correction;
+use Claroline\DropZoneBundle\Entity\Criterion;
 use Claroline\DropZoneBundle\Entity\Document;
 use Claroline\DropZoneBundle\Entity\Drop;
 use Claroline\DropZoneBundle\Entity\Dropzone;
@@ -72,6 +74,9 @@ class DropzoneManager
      */
     private $resourceEvalManager;
 
+    private $archiveDir;
+    private $configHandler;
+
     /** @var DropRepository */
     private $dropRepo;
 
@@ -93,19 +98,23 @@ class DropzoneManager
      *     "fileSystem"             = @DI\Inject("filesystem"),
      *     "filesDir"               = @DI\Inject("%claroline.param.files_directory%"),
      *     "om"                     = @DI\Inject("claroline.persistence.object_manager"),
-     *     "resourceEvalManager"    = @DI\Inject("claroline.manager.resource_evaluation_manager")
+     *     "resourceEvalManager"    = @DI\Inject("claroline.manager.resource_evaluation_manager"),
+     *     "archiveDir"             = @DI\Inject("%claroline.param.platform_generated_archive_path%"),
+     *     "configHandler"          = @DI\Inject("claroline.config.platform_config_handler")
      * })
      *
-     * @param Crud                      $crud
-     * @param DropzoneSerializer        $dropzoneSerializer
-     * @param DropSerializer            $dropSerializer
-     * @param DocumentSerializer        $documentSerializer
-     * @param CorrectionSerializer      $correctionSerializer
-     * @param DropzoneToolSerializer    $dropzoneToolSerializer
-     * @param Filesystem                $fileSystem
-     * @param string                    $filesDir
-     * @param ObjectManager             $om
-     * @param ResourceEvaluationManager $resourceEvalManager
+     * @param Crud                         $crud
+     * @param DropzoneSerializer           $dropzoneSerializer
+     * @param DropSerializer               $dropSerializer
+     * @param DocumentSerializer           $documentSerializer
+     * @param CorrectionSerializer         $correctionSerializer
+     * @param DropzoneToolSerializer       $dropzoneToolSerializer
+     * @param Filesystem                   $fileSystem
+     * @param string                       $filesDir
+     * @param ObjectManager                $om
+     * @param ResourceEvaluationManager    $resourceEvalManager
+     * @param string                       $archiveDir
+     * @param PlatformConfigurationHandler $configHandler
      */
     public function __construct(
         Crud $crud,
@@ -117,7 +126,9 @@ class DropzoneManager
         Filesystem $fileSystem,
         $filesDir,
         ObjectManager $om,
-        ResourceEvaluationManager $resourceEvalManager
+        ResourceEvaluationManager $resourceEvalManager,
+        $archiveDir,
+        PlatformConfigurationHandler $configHandler
     ) {
         $this->crud = $crud;
         $this->dropzoneSerializer = $dropzoneSerializer;
@@ -129,6 +140,8 @@ class DropzoneManager
         $this->filesDir = $filesDir;
         $this->om = $om;
         $this->resourceEvalManager = $resourceEvalManager;
+        $this->archiveDir = $archiveDir;
+        $this->configHandler = $configHandler;
 
         $this->dropRepo = $om->getRepository('Claroline\DropZoneBundle\Entity\Drop');
         $this->correctionRepo = $om->getRepository('Claroline\DropZoneBundle\Entity\Correction');
@@ -367,10 +380,10 @@ class DropzoneManager
     {
         $teamId = null;
 
-        if ($dropzone->getDropType() === Dropzone::DROP_TYPE_TEAM) {
+        if (Dropzone::DROP_TYPE_TEAM === $dropzone->getDropType()) {
             $teamDrops = $this->getTeamDrops($dropzone, $user);
 
-            if (count($teamDrops) === 1) {
+            if (1 === count($teamDrops)) {
                 $teamId = $teamDrops[0]->getTeamId();
             }
         }
@@ -448,7 +461,7 @@ class DropzoneManager
      */
     public function deleteDocument(Document $document)
     {
-        if ($document->getType() === Document::DOCUMENT_TYPE_FILE) {
+        if (Document::DOCUMENT_TYPE_FILE === $document->getType()) {
             $data = $document->getFile();
 
             if (isset($data['url'])) {
@@ -657,7 +670,7 @@ class DropzoneManager
             case Dropzone::DROP_TYPE_TEAM:
                 $teamDrops = $this->getTeamDrops($dropzone, $user);
 
-                if (count($teamDrops) === 1) {
+                if (1 === count($teamDrops)) {
                     $users = $teamDrops[0]->getUsers();
                 }
                 break;
@@ -1018,7 +1031,7 @@ class DropzoneManager
      */
     public function executeTool(DropzoneTool $tool, Document $document)
     {
-        if ($tool->getType() === DropzoneTool::COMPILATIO && $document->getType() === Document::DOCUMENT_TYPE_FILE) {
+        if (DropzoneTool::COMPILATIO === $tool->getType() && Document::DOCUMENT_TYPE_FILE === $document->getType()) {
             $toolDocument = $this->dropzoneToolDocumentRepo->findOneBy(['tool' => $tool, 'document' => $document]);
             $toolData = $tool->getData();
             $compilatio = new \SoapClient($toolData['url']);
@@ -1118,7 +1131,7 @@ class DropzoneManager
         $dropzone = $drop->getDropzone();
         $users = [$drop->getUser()];
 
-        if ($dropzone->getDropType() === Dropzone::DROP_TYPE_TEAM) {
+        if (Dropzone::DROP_TYPE_TEAM === $dropzone->getDropType()) {
             $users = $drop->getUsers();
         }
         $computeStatus = $drop->isFinished() && (!$dropzone->isPeerReview() || $drop->isUnlockedDrop());
@@ -1230,6 +1243,118 @@ class DropzoneManager
         return $data;
     }
 
+    /**
+     * @param array $drops
+     *
+     * @return string
+     */
+    public function generateArchiveForDrops(array $drops)
+    {
+        $ds = DIRECTORY_SEPARATOR;
+        $archive = new \ZipArchive();
+        $pathArch = $this->configHandler->getParameter('tmp_dir').$ds.Uuid::uuid4()->toString().'.zip';
+        $archive->open($pathArch, \ZipArchive::CREATE);
+
+        foreach ($drops as $drop) {
+            $date = $drop->isFinished() && !empty($drop->getDropDate()) ?
+                $drop->getDropDate()->format('d-m-Y H:i:s') :
+                '';
+            $dirName = $drop->getTeamName() ?
+                strtolower($drop->getTeamName()) :
+                strtolower($drop->getUser()->getFirstName().' '.$drop->getUser()->getLastName().' - '.$drop->getUser()->getUsername());
+
+            if ('' !== $date) {
+                $dirName .= ' '.$date;
+            }
+
+            foreach ($drop->getDocuments() as $document) {
+                switch ($document->getType()) {
+                    case Document::DOCUMENT_TYPE_FILE:
+                        $data = $document->getData();
+                        $filePath = $this->filesDir.$ds.$data['url'];
+                        $archive->addFile(
+                            $filePath,
+                            $dirName.$ds.$data['name']
+                        );
+                        break;
+                    case Document::DOCUMENT_TYPE_TEXT:
+                        $name = 'text_'.Uuid::uuid4()->toString().'.html';
+                        $textPath = $this->configHandler->getParameter('tmp_dir').$ds.$name;
+                        file_put_contents($textPath, $document->getData());
+                        $archive->addFile(
+                            $textPath,
+                            $dirName.$ds.$name
+                        );
+                        break;
+                    case Document::DOCUMENT_TYPE_URL:
+                        $name = 'url_'.Uuid::uuid4()->toString();
+                        $textPath = $this->configHandler->getParameter('tmp_dir').$ds.$name;
+                        file_put_contents($textPath, $document->getData());
+                        $archive->addFile(
+                            $textPath,
+                            $dirName.$ds.$name
+                        );
+                        break;
+                }
+            }
+        }
+        $archive->close();
+        file_put_contents($this->archiveDir, $pathArch."\n", FILE_APPEND);
+
+        return $pathArch;
+    }
+
+    /**
+     * Copy a Dropzone resource.
+     *
+     * @param Dropzone $dropzone
+     *
+     * @return Dropzone
+     */
+    public function copyDropzone(Dropzone $dropzone)
+    {
+        $newDropzone = new Dropzone();
+        $newDropzone->setName($dropzone->getName());
+        $newDropzone->setEditionState($dropzone->getEditionState());
+        $newDropzone->setInstruction($dropzone->getInstruction());
+        $newDropzone->setCorrectionInstruction($dropzone->getCorrectionInstruction());
+        $newDropzone->setSuccessMessage($dropzone->getSuccessMessage());
+        $newDropzone->setFailMessage($dropzone->getFailMessage());
+        $newDropzone->setAllowedDocuments($dropzone->getAllowedDocuments());
+        $newDropzone->setPeerReview($dropzone->isPeerReview());
+        $newDropzone->setExpectedCorrectionTotal($dropzone->getExpectedCorrectionTotal());
+        $newDropzone->setDisplayNotationToLearners($dropzone->getDisplayNotationToLearners());
+        $newDropzone->setDisplayNotationMessageToLearners($dropzone->getDisplayNotationMessageToLearners());
+        $newDropzone->setScoreToPass($dropzone->getScoreToPass());
+        $newDropzone->setScoreMax($dropzone->getScoreMax());
+        $newDropzone->setDropType($dropzone->getDropType());
+        $newDropzone->setManualPlanning($dropzone->getManualPlanning());
+        $newDropzone->setManualState($dropzone->getManualState());
+        $newDropzone->setDropStartDate($dropzone->getDropStartDate());
+        $newDropzone->setDropEndDate($dropzone->getDropEndDate());
+        $newDropzone->setReviewStartDate($dropzone->getReviewStartDate());
+        $newDropzone->setReviewEndDate($dropzone->getReviewEndDate());
+        $newDropzone->setCommentInCorrectionEnabled($dropzone->isCommentInCorrectionEnabled());
+        $newDropzone->setCommentInCorrectionForced($dropzone->isCommentInCorrectionForced());
+        $newDropzone->setDisplayCorrectionsToLearners($dropzone->getDisplayCorrectionsToLearners());
+        $newDropzone->setCorrectionDenialEnabled($dropzone->isCorrectionDenialEnabled());
+        $newDropzone->setCriteriaEnabled($dropzone->isCriteriaEnabled());
+        $newDropzone->setCriteriaTotal($dropzone->getCriteriaTotal());
+        $newDropzone->setAutoCloseDropsAtDropEndDate($dropzone->getAutoCloseDropsAtDropEndDate());
+        $newDropzone->setAutoCloseState($dropzone->getAutoCloseState());
+        $newDropzone->setDropClosed($dropzone->getDropClosed());
+        $newDropzone->setNotifyOnDrop($dropzone->getNotifyOnDrop());
+
+        foreach ($dropzone->getCriteria() as $criterion) {
+            $newCriterion = new Criterion();
+            $newCriterion->setDropzone($newDropzone);
+            $newCriterion->setInstruction($criterion->getInstruction());
+            $this->om->persist($newCriterion);
+        }
+
+        return $newDropzone;
+    }
+
     private function getDropWithTheLeastCorrections(array $drops)
     {
         $selectedDrop = count($drops) > 0 ? $drops[0] : null;
@@ -1259,7 +1384,7 @@ class DropzoneManager
         return [
             'name' => $file->getClientOriginalName(),
             'mimeType' => $file->getClientMimeType(),
-            'url' => '../files/dropzone'.$ds.$dropzone->getUuid().$ds.$fileName,
+            'url' => 'dropzone'.$ds.$dropzone->getUuid().$ds.$fileName,
         ];
     }
 }
