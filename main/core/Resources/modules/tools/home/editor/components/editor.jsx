@@ -14,10 +14,6 @@ import {MODAL_EDIT_WIDGET} from '#/main/core/widget/modals/components//edit-widg
 
 import {actions} from '#/main/core/tools/home/editor/actions'
 
-import {EmbeddedApp} from '#/main/app/components/embedded-app'
-
-import {getWidget} from '#/main/core/widget/types'
-
 const WidgetEditor = props =>
   <div className="widget-container">
     <div className="widget-actions text-right">
