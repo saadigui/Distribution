@@ -9,7 +9,7 @@ use JMS\DiExtraBundle\Annotation as DI;
 
 //todo add "*" to unlock this
 
-/*
+/***
  * @DI\Service()
  * @DI\Tag("claroline.transfer.action")
  */
