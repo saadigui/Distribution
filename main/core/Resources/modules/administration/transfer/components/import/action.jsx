@@ -11,7 +11,7 @@ const Action = props =>
   <PageActions>
     <FormPageActionsContainer
       formName="import"
-      target={['apiv2_transfer_execute']}
+      target={['apiv2_transfer_execute', {log: '123'}]}
       opened={true}
       save={{action: (obj) => props.openLog('123')}}
     />

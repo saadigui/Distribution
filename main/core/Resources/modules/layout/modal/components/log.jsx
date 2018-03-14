@@ -10,6 +10,9 @@ import {BaseModal} from './base.jsx'
 const LogModal = props =>
   <BaseModal {...props}>
     <Modal.Body>
+      <pre id="log-content">
+        belebele
+      </pre>
     </Modal.Body>
     <button
       className="modal-btn btn btn-primary"
