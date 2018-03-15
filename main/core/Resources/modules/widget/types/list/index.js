@@ -6,28 +6,26 @@ import {ListWidget} from '#/main/core/widget/types/list/components/widget'
 /**
  * List widget application.
  *
- * @param {object} widgetInstance - the current widget instance
- * @param {object} context        - the context of widget rendering
+ * @param {object} context    - the context of widget rendering
+ * @param {object} parameters - the current widget parameters
  *
  * @constructor
  */
-export const App = (widgetInstance, context) => ({
-  name: 'list-widget',
+export const App = (context, parameters = {}) => ({
   component: ListWidget,
   store: {
-    context: makeReducer({}, {}),
     config: makeReducer({}, {}),
     list: makeListReducer('list', {}, {}, {
-      filterable: widgetInstance.parameters.filterable,
-      sortable: widgetInstance.parameters.sortable,
-      paginated: widgetInstance.parameters.paginated
+      selectable: false,
+      filterable: parameters.filterable,
+      sortable: parameters.sortable,
+      paginated: parameters.paginated
     })
   },
-  initialState: () => ({ // function is for retro compatibility with bootstrap
-    context: context,
-    config: widgetInstance.parameters,
+  initialData: () => ({ // function is for retro compatibility with bootstrap()
+    config: parameters,
     list: {
-      pageSize: widgetInstance.parameters.pageSize
+      pageSize: parameters.pageSize
     }
   })
 })

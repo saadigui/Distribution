@@ -9,19 +9,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity()
  * @ORM\Table(name="claro_widget_profile")
  */
-class ProfileWidget
+class ProfileWidget extends AbstractWidget
 {
-    /**
-     * An unique identifier for the widget.
-     *
-     * @ORM\Id()
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
-     *
-     * @var int
-     */
-    private $id;
-
     /**
      * Display profile of the current user.
      *
@@ -40,16 +29,6 @@ class ProfileWidget
      * @var User
      */
     private $user = null;
-
-    /**
-     * Get id.
-     *
-     * @return int
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
 
     /**
      * Is current user displayed ?

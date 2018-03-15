@@ -1,46 +1,20 @@
 
 const CORE_PLUGIN = 'CORE_PLUGIN'
 
+/**
+ * Declares applications provided by the Core plugin.
+ */
 const coreConfiguration = {
   actions: [],
   resources: [],
   tools: [],
-  widgets: [
-    {
-      name: 'simple',
-      load: () => {
-        // We need to explicitly declare it to be grabbed in the webpack compilation
-        // Without it the chunk is not generated
-        return import(/* webpackChunkName: "simple-widget" */ '#/main/core/widget/types/simple')
-      }
-    }, {
-      name: 'list',
-      load: () => {
-        // We need to explicitly declare it to be grabbed in the webpack compilation
-        // Without it the chunk is not generated
-        return import(/* webpackChunkName: "list-widget" */ '#/main/core/widget/types/list')
-      }
-    }
-  ],
-  widgetPresets: [
-    {
-      name: 'resource-list',
-      widget: 'list',
-      load: () => {
-        // We need to explicitly declare it to be grabbed in the webpack compilation
-        // Without it the chunk is not generated
-        return import(/* webpackChunkName: "resource-list-preset" */ '#/main/core/widget/presets/list/resource')
-      }
-    }, {
-      name: 'user-list',
-      widget: 'list',
-      load: () => {
-        // We need to explicitly declare it to be grabbed in the webpack compilation
-        // Without it the chunk is not generated
-        return import(/* webpackChunkName: "user-list-preset" */ '#/main/core/widget/presets/list/user')
-      }
-    }
-  ]
+  widgets: {
+    'list': () => { return import(/* webpackChunkName: "core-resource-list-widget" */ '#/main/core/widget/types/list') },
+
+    'simple'       : () => { return import(/* webpackChunkName: "core-simple-widget" */ '#/main/core/widget/types/simple') },
+    'resource-list': () => { return import(/* webpackChunkName: "core-resource-list-widget" */ '#/main/core/widget/types/resource-list') },
+    'user-list'    : () => { return import(/* webpackChunkName: "core-user-list-preset" */ '#/main/core/widget/types/user-list') }
+  }
 }
 
 export {

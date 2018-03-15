@@ -4,16 +4,23 @@ namespace Claroline\AppBundle\Entity\Meta;
 
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * Adds a poster image to an entity.
+ */
 trait Poster
 {
     /**
+     * The url to the poster image.
+     *
      * @ORM\Column(name="poster", nullable=true)
      *
      * @var string
      */
-    protected $poster;
+    private $poster;
 
     /**
+     * Get poster.
+     *
      * @return string
      */
     public function getPoster()
@@ -22,6 +29,8 @@ trait Poster
     }
 
     /**
+     * Set poster.
+     *
      * @param string $poster
      */
     public function setPoster($poster)

@@ -1,18 +1,21 @@
-import {bootstrap} from '#/main/core/scaffolding/bootstrap'
+import {makeReducer} from '#/main/core/scaffolding/reducer'
 
 import {SimpleWidget} from '#/main/core/widget/types/simple/components/widget'
-
-console.log('SimpleWidget')
 
 /**
  * Simple widget application.
  *
- * @param {object} widgetInstance - the current widget instance
- * @param {object} context        - the context of widget rendering
+ * @param {object} context    - the context of widget rendering
+ * @param {object} parameters - the current widget parameters
  *
  * @constructor
  */
-export const App = (widgetInstance, context) => ({
-  name: 'simple-widget',
-  component: SimpleWidget
+export const App = (context, parameters) => ({
+  component: SimpleWidget,
+  store: {
+    content: makeReducer(null, {}),
+  },
+  initialData: () => ({ // function is for retro compatibility with bootstrap()
+    content: parameters.content
+  })
 })

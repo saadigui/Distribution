@@ -1,12 +1,11 @@
 import {coreConfiguration} from '#/main/core/plugin'
 
 function getWidget(name) {
-  const widget = coreConfiguration.widgets.find(widget => widget.name === name)
-  if (!widget) {
+  if (!coreConfiguration.widgets[name]) {
     throw new Error(`You have requested a non existent widget named ${name}`)
   }
 
-  return widget
+  return coreConfiguration.widgets[name]
 }
 
 export {

@@ -22,10 +22,11 @@ const DataGridItem = props =>
       />
     }
 
-    <div className="item-header" style={{
-      backgroundImage: 'url(' + props.data.poster + ')',
+    <div className="item-header" style={props.data.poster && {
+      backgroundImage: `url("${props.data.poster}")`,
       backgroundSize: 'cover',
-      backgroundPosition: 'center'
+      backgroundPosition: 'center center',
+      backgroundRepeat: 'no-repeat'
     }}>
       <span className="item-icon-container">
         {typeof props.data.icon === 'string' ?
@@ -43,7 +44,15 @@ const DataGridItem = props =>
               id={`item-${props.index}-flag-${flagIndex}`}
               tip={flag[1]}
             >
-              <span className={classes('item-flag', flag[0])} />
+              {undefined !== flag[2] ?
+                <span className="item-flag">
+                  <span className={flag[0]} />
+                  {flag[2]}
+                </span>
+                :
+                <span className={classes('item-flag', flag[0])} />
+              }
+
             </TooltipElement>
           )}
         </div>

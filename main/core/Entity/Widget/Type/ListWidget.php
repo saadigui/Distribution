@@ -8,19 +8,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity()
  * @ORM\Table(name="claro_widget_list")
  */
-class ListWidget
+class ListWidget extends AbstractWidget
 {
-    /**
-     * An unique identifier for the widget.
-     *
-     * @ORM\Id()
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
-     *
-     * @var int
-     */
-    private $id;
-
     /**
      * The URL to retrieve list data.
      * NB. return format MUST be compatible with front DataList.
@@ -79,16 +68,6 @@ class ListWidget
      * @var array
      */
     private $displayedColumns = [];
-
-    /**
-     * Get id.
-     *
-     * @return int
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
 
     /**
      * Get fetch url.

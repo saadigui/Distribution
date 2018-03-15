@@ -6,6 +6,8 @@ import {EmbeddedApp} from '#/main/app/components/embedded-app'
 import {WidgetInstance as WidgetInstanceTypes} from '#/main/core/widget/prop-types'
 import {getWidget} from '#/main/core/widget/types'
 
+// fixme : there will be naming collision in EmbeddedApps with multiple instance of same widget
+
 const Widget = props =>
   <section className="widget">
     {props.instance.title &&
@@ -13,8 +15,9 @@ const Widget = props =>
     }
 
     <EmbeddedApp
-      load={getWidget(props.instance.type).load}
-      parameters={[props.instance, props.context]}
+      name={props.instance.type}
+      load={getWidget(props.instance.type)}
+      parameters={[props.context, props.instance.parameters]}
     />
   </section>
 

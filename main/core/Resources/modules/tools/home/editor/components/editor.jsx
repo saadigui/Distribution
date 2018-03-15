@@ -95,7 +95,7 @@ const Editor = connect(
     widgets: [
       {
         id: 'id1',
-        type: 'list',
+        type: 'resource-list',
         title: 'My awesome widget 1',
         parameters: {}
       }, {

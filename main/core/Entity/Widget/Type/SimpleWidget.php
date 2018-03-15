@@ -8,19 +8,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity()
  * @ORM\Table(name="claro_widget_simple")
  */
-class SimpleWidget
+class SimpleWidget extends AbstractWidget
 {
-    /**
-     * An unique identifier for the widget.
-     *
-     * @ORM\Id()
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
-     *
-     * @var int
-     */
-    private $id;
-
     /**
      * The HTML content of the widget.
      *
@@ -29,16 +18,6 @@ class SimpleWidget
      * @var string
      */
     private $content;
-
-    /**
-     * Get id.
-     *
-     * @return int
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
 
     /**
      * Get content.

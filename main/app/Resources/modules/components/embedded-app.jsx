@@ -9,6 +9,8 @@ import {theme} from '#/main/core/scaffolding/asset'
  * Mounts an entire React application (components + store) inside another.
  *
  * For instance it's not possible for the 2 apps to communicate.
+ *
+ * @todo add loading
  */
 class EmbeddedApp extends Component {
   constructor(props) {
@@ -25,11 +27,13 @@ class EmbeddedApp extends Component {
         if (embeddedApp) {
           this.setState(embeddedApp, () => {
             // append and bootstrap the app
-            bootstrap(`.${this.state.name}-container`, this.state.component, this.state.store, this.state.initialState)
+            bootstrap(`.${this.props.name}-container`, this.state.component, this.state.store, this.state.initialData)
           })
         }
       })
       .catch(error => {
+        // this swallows the original error stack trace
+        // and make it complicated to debug but I don't find another way to do it.
         invariant(false, `An error occurred while loading the EmbeddedApp : ${error}`)
       })
   }
@@ -37,7 +41,7 @@ class EmbeddedApp extends Component {
   render() {
     return (
       <sections className="embedded-app">
-        <div className={`${this.state.name}-container`} />
+        <div className={`${this.props.name}-container`} />
 
         {this.state.styles && 0 !== this.state.styles.length &&
           <link rel="stylesheet" type="text/css" href={theme(this.state.styles)} />
@@ -49,6 +53,7 @@ class EmbeddedApp extends Component {
 
 
 EmbeddedApp.propTypes = {
+  name: T.string.isRequired,
   load: T.func.isRequired,
   parameters: T.array
 }

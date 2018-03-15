@@ -19,12 +19,21 @@ class WidgetSerializer
     public function serialize(Widget $widget, array $options = [])
     {
         return [
-
+            'id' => $widget->getUuid(),
+            'name' => $widget->getName(),
+            'meta' => [
+                'abstract' => $widget->isAbstract(),
+                'parent' => !empty($widget->getParent()) ? $this->serialize($widget->getParent()) : null,
+                'context' => $widget->getContext(),
+                'exportable' => $widget->isExportable(),
+            ],
+            'tags' => $widget->getTags(),
         ];
     }
 
-    public function deserialize($data, Widget $widget, array $options = [])
+    public function deserialize(array $data, Widget $widget, array $options = [])
     {
+        // todo : implement
 
         return $widget;
     }

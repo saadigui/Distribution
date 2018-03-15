@@ -19,13 +19,7 @@ class SimpleWidgetSerializer
     public function serialize(SimpleWidget $widget, array $options = [])
     {
         return [
-            //'fetchUrl' => $widget->getFetchUrl(),
-            'filterable' => $widget->isFilterable(),
-            'sortable' => $widget->isSortable(),
-            'paginated' => $widget->isPaginated(),
-            'pageSize' => $widget->getPageSize(),
-            'defaultFilters' => $widget->getDefaultFilters(),
-            'availableColumns' => $widget->getAvailableColumns(),
+            'content' => $widget->getContent(),
         ];
     }
 

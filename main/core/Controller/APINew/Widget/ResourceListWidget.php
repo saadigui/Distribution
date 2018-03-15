@@ -6,6 +6,7 @@ use Claroline\AppBundle\API\FinderProvider;
 use Claroline\CoreBundle\Entity\Workspace\Workspace;
 use JMS\DiExtraBundle\Annotation as DI;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration as EXT;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -37,13 +38,15 @@ class ResourceListWidget
      *
      * @param Request $request
      *
-     * @return array
+     * @return JsonResponse
      */
     public function listDesktopAction(Request $request)
     {
-        return $this->finder->search(
-            'Claroline\CoreBundle\Entity\Resource\ResourceNode',
-            $request->query->all()
+        return new JsonResponse(
+            $this->finder->search(
+                'Claroline\CoreBundle\Entity\Resource\ResourceNode',
+                $request->query->all()
+            )
         );
     }
 
@@ -55,7 +58,7 @@ class ResourceListWidget
      * @param Request $request
      * @param Workspace $workspace
      *
-     * @return array
+     * @return JsonResponse
      */
     public function listWorkspaceAction(Request $request, Workspace $workspace)
     {
@@ -63,9 +66,11 @@ class ResourceListWidget
         $options = $request->query->all();
         $options['hiddenFilters']['workspace'] = $workspace->getId();
 
-        return $this->finder->search(
-            'Claroline\CoreBundle\Entity\Resource\ResourceNode',
-            $options
+        return new JsonResponse(
+            $this->finder->search(
+                'Claroline\CoreBundle\Entity\Resource\ResourceNode',
+                $options
+            )
         );
     }
 }

@@ -68,7 +68,7 @@ const PortalPage = props =>
             <span className="item-icon-container fa fa-play" />
             :
             <span className="item-icon-container" style={{
-              backgroundImage: 'url("' + row.meta.icon + '")',
+              backgroundImage: `url("${row.meta.icon}")`,
               backgroundPosition: 'center',
               backgroundRepeat: 'no-repeat'
             }} />,

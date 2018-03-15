@@ -4,6 +4,9 @@ namespace Claroline\AppBundle\Entity\Identifier;
 
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * Adds an unique incremental id to an Entity.
+ */
 trait Id
 {
     /**
@@ -18,6 +21,8 @@ trait Id
     private $id;
 
     /**
+     * Get id.
+     *
      * @return int
      */
     public function getId()

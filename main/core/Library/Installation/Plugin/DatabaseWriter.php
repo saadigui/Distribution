@@ -214,11 +214,8 @@ class DatabaseWriter
             $this->persistResourceAction($resourceAction);
         }
 
-        $roles = $this->em->getRepository('ClarolineCoreBundle:Role')
-            ->findAllPlatformRoles();
-
         foreach ($processedConfiguration['widgets'] as $widget) {
-            $this->createWidget($widget, $plugin, $pluginBundle, $roles);
+            $this->createWidget($widget, $plugin, $pluginBundle);
         }
 
         foreach ($processedConfiguration['tools'] as $tool) {
@@ -253,11 +250,8 @@ class DatabaseWriter
             $this->updateResourceAction($resourceAction);
         }
 
-        $roles = $this->em->getRepository('ClarolineCoreBundle:Role')
-            ->findAllPlatformRoles();
-
         foreach ($processedConfiguration['widgets'] as $widgetConfiguration) {
-            $this->updateWidget($widgetConfiguration, $pluginBundle, $plugin, $roles);
+            $this->updateWidget($widgetConfiguration, $plugin, $pluginBundle);
         }
 
         foreach ($processedConfiguration['tools'] as $toolConfiguration) {
@@ -332,8 +326,9 @@ class DatabaseWriter
      */
     private function updateTool($toolConfiguration, Plugin $plugin)
     {
-        $tool = $this->em->getRepository('ClarolineCoreBundle:Tool\Tool')
-            ->findOneByName($toolConfiguration['name']);
+        $tool = $this->em
+            ->getRepository('ClarolineCoreBundle:Tool\Tool')
+            ->findOneBy(['name' => $toolConfiguration['name']]);
 
         if (null === $tool) {
             $tool = new Tool();
@@ -345,29 +340,21 @@ class DatabaseWriter
 
     /**
      * @param array        $widgetConfiguration
-     * @param PluginBundle $pluginBundle
      * @param Plugin       $plugin
+     * @param PluginBundle $pluginBundle
      */
-    private function updateWidget(
-        $widgetConfiguration,
-        PluginBundle $pluginBundle,
-        Plugin $plugin,
-        array $roles = []
-    ) {
-        $widget = $this->em->getRepository('ClarolineCoreBundle:Widget\Widget')
-            ->findOneByName($widgetConfiguration['name']);
-        $withDisplay = false;
+    private function updateWidget($widgetConfiguration, Plugin $plugin, PluginBundle $pluginBundle)
+    {
+        /** @var Widget $widget */
+        $widget = $this->em
+            ->getRepository('ClarolineCoreBundle:Widget\Widget')
+            ->findOneBy(['name' => $widgetConfiguration['name']]);
 
         if (is_null($widget)) {
-            $widget = new Widget();
-
-            foreach ($roles as $role) {
-                $widget->addRole($role);
-            }
-            $withDisplay = true;
+            $this->createWidget($widgetConfiguration, $plugin, $pluginBundle);
+        } else {
+            $this->persistWidget($widgetConfiguration, $plugin, $pluginBundle, $widget);
         }
-
-        $this->persistWidget($widgetConfiguration, $plugin, $pluginBundle, $widget, $withDisplay);
     }
 
     private function updateAdditionalAction(array $action, Plugin $plugin)
@@ -669,14 +656,19 @@ class DatabaseWriter
      * @param Plugin       $plugin
      * @param PluginBundle $pluginBundle
      */
-    private function createWidget($widgetConfiguration, Plugin $plugin, PluginBundle $pluginBundle, array $roles = [])
+    private function createWidget($widgetConfiguration, Plugin $plugin, PluginBundle $pluginBundle)
     {
         $widget = new Widget();
         $widget->setPlugin($plugin);
 
-        foreach ($roles as $role) {
-            $widget->addRole($role);
+        if (!empty($widgetConfiguration['parent'])) {
+            $parent = $this->em
+                ->getRepository('ClarolineCoreBundle:Widget\Widget')
+                ->findOneBy(['name' => $widgetConfiguration['parent']]);
+
+            $widget->setParent($parent);
         }
+
         $this->persistWidget($widgetConfiguration, $plugin, $pluginBundle, $widget);
     }
 
@@ -686,18 +678,14 @@ class DatabaseWriter
      * @param PluginBundle $pluginBundle
      * @param Widget       $widget
      */
-    private function persistWidget($widgetConfiguration, Plugin $plugin, PluginBundle $pluginBundle, Widget $widget, $withDisplay = true)
+    private function persistWidget($widgetConfiguration, Plugin $plugin, PluginBundle $pluginBundle, Widget $widget)
     {
         $widget->setName($widgetConfiguration['name']);
-        $widget->setConfigurable($widgetConfiguration['is_configurable']);
-        $widget->setExportable($widgetConfiguration['is_exportable']);
-        $widget->setDefaultWidth($widgetConfiguration['default_width']);
-        $widget->setDefaultHeight($widgetConfiguration['default_height']);
+        $widget->setContext(isset($widgetConfiguration['context']) ? $widgetConfiguration['context'] : []);
+        $widget->setClass(isset($widgetConfiguration['class']) ? $widgetConfiguration['class'] : null);
+        $widget->setAbstract(!!$widgetConfiguration['abstract']);
+        $widget->setExportable($widgetConfiguration['exportable']);
 
-        if ($withDisplay) {
-            $widget->setIsDisplayableInDesktop($widgetConfiguration['is_displayable_in_desktop']);
-            $widget->setIsDisplayableInWorkspace($widgetConfiguration['is_displayable_in_workspace']);
-        }
         $this->em->persist($widget);
     }
 
