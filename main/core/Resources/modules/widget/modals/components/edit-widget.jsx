@@ -4,6 +4,8 @@ import {PropTypes as T} from 'prop-types'
 import {trans} from '#/main/core/translation'
 import {DataFormModal} from '#/main/core/data/form/modals/components/data-form'
 
+import {WidgetInstance as WidgetInstanceTypes} from '#/main/core/widget/prop-types'
+
 const MODAL_EDIT_WIDGET = 'MODAL_EDIT_WIDGET'
 
 const EditWidgetModal = props =>
@@ -17,7 +19,7 @@ const EditWidgetModal = props =>
         primary: true,
         fields: [
           {
-            name: 'name',
+            name: 'title',
             type: 'string',
             label: trans('name')
           }
@@ -32,7 +34,7 @@ const EditWidgetModal = props =>
             label: trans('color'),
             type: 'color'
           }, {
-            name: 'display.background',
+            name: 'display.backgroundType',
             label: trans('background'),
             type: 'enum',
             options: {
@@ -45,13 +47,13 @@ const EditWidgetModal = props =>
             },
             linked: [
               {
-                name: 'display.backgroundImage',
+                name: 'display.background',
                 label: trans('image'),
                 type: 'image',
                 required: true,
                 displayed: (widget) => widget.display && 'image' === widget.display.background,
               }, {
-                name: 'display.backgroundColor',
+                name: 'display.background',
                 label: trans('color'),
                 type: 'color',
                 required: true,
@@ -72,6 +74,9 @@ const EditWidgetModal = props =>
   />
 
 EditWidgetModal.propTypes = {
+  data: T.shape(
+    WidgetInstanceTypes.propTypes
+  ).isRequired,
   save: T.func.isRequired
 }
 

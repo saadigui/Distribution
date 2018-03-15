@@ -36,12 +36,39 @@ class Version20180313114306 extends AbstractMigration
             CREATE UNIQUE INDEX UNIQ_76CA6C4FD17F50A6 ON claro_widget (uuid)
         ");
 
+        // updates widget instances
+        $this->addSql("
+            ALTER TABLE claro_widget_instance 
+            DROP FOREIGN KEY FK_5F89A385A76ED395
+        ");
+        $this->addSql("
+            DROP INDEX IDX_5F89A385A76ED395 ON claro_widget_instance
+        ");
+        $this->addSql("
+            ALTER TABLE claro_widget_instance 
+            ADD color VARCHAR(255) DEFAULT NULL, 
+            ADD backgroundType VARCHAR(255) NOT NULL, 
+            ADD background VARCHAR(255) DEFAULT NULL, 
+            ADD uuid VARCHAR(36) NOT NULL, 
+            DROP user_id, 
+            DROP is_admin, 
+            DROP is_desktop, 
+            DROP icon, 
+            DROP template, 
+            CHANGE name widget_name VARCHAR(255) NOT NULL
+        ");
+        $this->addSql("
+            UPDATE claro_widget_instance SET uuid = (SELECT UUID())
+        ");
+        $this->addSql("
+            CREATE UNIQUE INDEX UNIQ_5F89A385D17F50A6 ON claro_widget_instance (uuid)
+        ");
+
         // list widget
         $this->addSql("
             CREATE TABLE claro_widget_list (
                 id INT AUTO_INCREMENT NOT NULL, 
                 widgetInstance_id INT NOT NULL, 
-                fetchUrl VARCHAR(255) NOT NULL, 
                 filterable TINYINT(1) NOT NULL, 
                 sortable TINYINT(1) NOT NULL, 
                 paginated TINYINT(1) NOT NULL, 
@@ -130,6 +157,33 @@ class Version20180313114306 extends AbstractMigration
             DROP context, 
             DROP uuid, 
             CHANGE abstract is_configurable TINYINT(1) NOT NULL
+        ");
+
+        $this->addSql("
+            DROP INDEX UNIQ_5F89A385D17F50A6 ON claro_widget_instance
+        ");
+        $this->addSql("
+            ALTER TABLE claro_widget_instance 
+            ADD user_id INT DEFAULT NULL, 
+            ADD is_admin TINYINT(1) NOT NULL, 
+            ADD is_desktop TINYINT(1) NOT NULL, 
+            ADD name VARCHAR(255) NOT NULL COLLATE utf8_unicode_ci, 
+            ADD icon VARCHAR(255) DEFAULT NULL COLLATE utf8_unicode_ci, 
+            ADD template VARCHAR(255) DEFAULT NULL COLLATE utf8_unicode_ci, 
+            DROP widget_name, 
+            DROP color, 
+            DROP backgroundType, 
+            DROP background, 
+            DROP uuid
+        ");
+        $this->addSql("
+            ALTER TABLE claro_widget_instance 
+            ADD CONSTRAINT FK_5F89A385A76ED395 FOREIGN KEY (user_id) 
+            REFERENCES claro_user (id) 
+            ON DELETE CASCADE
+        ");
+        $this->addSql("
+            CREATE INDEX IDX_5F89A385A76ED395 ON claro_widget_instance (user_id)
         ");
 
         $this->addSql("

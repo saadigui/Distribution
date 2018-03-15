@@ -11,18 +11,59 @@
 
 namespace Claroline\CoreBundle\Controller\APINew;
 
-use Claroline\AppBundle\Annotations\ApiMeta;
-use Claroline\AppBundle\Controller\AbstractCrudController;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Claroline\AppBundle\API\SerializerProvider;
+use Claroline\AppBundle\Persistence\ObjectManager;
+use Claroline\CoreBundle\Entity\Widget\Widget;
+use Claroline\CoreBundle\Manager\WidgetManager;
+use Claroline\CoreBundle\Repository\Widget\WidgetRepository;
+use JMS\DiExtraBundle\Annotation as DI;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration as EXT;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
- * @ApiMeta(class="Claroline\CoreBundle\Entity\Widget\Widget")
- * @Route("/widget")
+ * @EXT\Route("/widget", options={"expose": true})
  */
-class WidgetController extends AbstractCrudController
+class WidgetController
 {
-    public function getName()
+    /** @var SerializerProvider */
+    private $serializer;
+
+    /** @var WidgetManager */
+    private $manager;
+
+    /**
+     * WidgetController constructor.
+     *
+     * @DI\InjectParams({
+     *     "serializer" = @DI\Inject("claroline.api.serializer"),
+     *     "manager"    = @DI\Inject("claroline.manager.widget_manager")
+     * })
+     *
+     * @param SerializerProvider $serializer
+     * @param WidgetManager      $manager
+     */
+    public function __construct(SerializerProvider $serializer, WidgetManager $manager)
     {
-        return 'widget';
+        $this->serializer = $serializer;
+        $this->manager = $manager;
+    }
+
+    /**
+     * Lists available widgets for a given context.
+     *
+     * @EXT\Route("/{context}", name="apiv2_widget_available", defaults={"context"=null})
+     * @EXT\Method("GET")
+     *
+     * @param string $context
+     *
+     * @return JsonResponse
+     */
+    public function indexAction($context = null)
+    {
+        $widgets = $this->manager->getAvailable($context);
+
+        return new JsonResponse(array_map(function (Widget $widget) {
+            return $this->serializer->serialize($widget);
+        }, $widgets));
     }
 }

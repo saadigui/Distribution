@@ -182,7 +182,7 @@ const DataCard = {
     subtitle: T.string,
     contentText: T.string,
     flags: T.arrayOf(
-      T.arrayOf(T.string)
+      T.arrayOf(T.oneOfType([T.string, T.number]))
     ),
     footer: T.node,
     footerLong: T.node

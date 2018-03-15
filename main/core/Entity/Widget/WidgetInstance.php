@@ -11,9 +11,10 @@
 
 namespace Claroline\CoreBundle\Entity\Widget;
 
+use Claroline\AppBundle\Entity\Identifier\Id;
+use Claroline\AppBundle\Entity\Identifier\Uuid;
+use Claroline\CoreBundle\Entity\Workspace\Workspace;
 use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation\Groups;
-use JMS\Serializer\Annotation\SerializedName;
 
 /**
  * @ORM\Entity(repositoryClass="Claroline\CoreBundle\Repository\WidgetInstanceRepository")
@@ -21,91 +22,88 @@ use JMS\Serializer\Annotation\SerializedName;
  */
 class WidgetInstance
 {
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
-     * @Groups({"api_widget"})
-     * @SerializedName("id")
-     */
-    protected $id;
+    use Id;
+    use Uuid;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Claroline\CoreBundle\Entity\Workspace\Workspace")
-     * @ORM\JoinColumn(onDelete="CASCADE")
+     * The name of the instance.
+     *
+     * @ORM\Column(name="widget_name")
+     *
+     * @var string
      */
-    protected $workspace;
+    private $name;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Claroline\CoreBundle\Entity\User")
-     * @ORM\JoinColumn(onDelete="CASCADE")
-     */
-    protected $user;
-
-    /**
+     * The widget which is rendered.
+     *
      * @ORM\ManyToOne(targetEntity="Claroline\CoreBundle\Entity\Widget\Widget")
      * @ORM\JoinColumn(onDelete="CASCADE", nullable=false)
-     * @Groups({"api_widget"})
-     * @SerializedName("widget")
      *
      * @var Widget
      */
-    protected $widget;
+    private $widget;
 
     /**
-     * @ORM\Column(name="is_admin", type="boolean")
-     * @Groups({"api_widget"})
-     * @SerializedName("isAdmin")
-     */
-    protected $isAdmin = false;
-
-    /**
-     * @ORM\Column(name="is_desktop", type="boolean")
-     * @Groups({"api_widget"})
-     * @SerializedName("isDesktop")
-     */
-    protected $isDesktop = false;
-
-    /**
-     * @ORM\Column(name="name")
-     * @Groups({"api_widget"})
-     * @SerializedName("name")
-     */
-    protected $name;
-
-    /**
+     * The color of the text inside the widget.
+     *
      * @ORM\Column(nullable=true)
-     * @Groups({"api_widget"})
-     * @SerializedName("icon")
+     *
+     * @var string
      */
-    protected $icon;
+    private $color = null;
 
     /**
-     * @ORM\OneToMany(
-     *     targetEntity="Claroline\CoreBundle\Entity\Widget\WidgetDisplayConfig",
-     *     mappedBy="widgetInstance"
-     * )
+     * The type of the background (none, color, image).
+     *
+     * @ORM\Column()
+     *
+     * @var string
      */
-    protected $widgetDisplayConfigs;
+    private $backgroundType = 'none';
 
     /**
-     * @ORM\Column(name="template", nullable=true)
-     * @Groups({"api_widget"})
-     * @SerializedName("template")
+     * The background data (either the color or the image url).
+     *
+     * @ORM\Column(nullable=true)
+     *
+     * @var string
      */
-    protected $template;
+    private $background = null;
 
-    public function getId()
+    /**
+     * The parent Workspace when widget is rendered in "workspace" context.
+     *
+     * @ORM\ManyToOne(targetEntity="Claroline\CoreBundle\Entity\Workspace\Workspace")
+     * @ORM\JoinColumn(onDelete="CASCADE")
+     *
+     * @var Workspace
+     */
+    private $workspace = null;
+
+    /**
+     * Get name.
+     *
+     * @return string
+     */
+    public function getName()
     {
-        return $this->id;
+        return $this->name;
     }
 
-    public function setWidget($widget)
+    /**
+     * Set name.
+     *
+     * @param string $name
+     */
+    public function setName($name)
     {
-        $this->widget = $widget;
+        $this->name = $name;
     }
 
     /**
+     * Get widget.
+     *
      * @return Widget
      */
     public function getWidget()
@@ -113,88 +111,93 @@ class WidgetInstance
         return $this->widget;
     }
 
+    /**
+     * Set widget.
+     *
+     * @param Widget $widget
+     */
+    public function setWidget(Widget $widget)
+    {
+        $this->widget = $widget;
+    }
+
+    /**
+     * Get color.
+     *
+     * @return string
+     */
+    public function getColor()
+    {
+        return $this->color;
+    }
+
+    /**
+     * Set color.
+     *
+     * @param string $color
+     */
+    public function setColor($color)
+    {
+        $this->color = $color;
+    }
+
+    /**
+     * Get background type.
+     *
+     * @return string
+     */
+    public function getBackgroundType()
+    {
+        return $this->backgroundType;
+    }
+
+    /**
+     * Set background type.
+     *
+     * @param string $backgroundType
+     */
+    public function setBackgroundType($backgroundType)
+    {
+        $this->backgroundType = $backgroundType;
+    }
+
+    /**
+     * Get background.
+     *
+     * @return string
+     */
+    public function getBackground()
+    {
+        return $this->background;
+    }
+
+    /**
+     * Set background.
+     *
+     * @param string $background
+     */
+    public function setBackground($background)
+    {
+        $this->background = $background;
+    }
+
+    /**
+     * Get workspace.
+     *
+     * @return Workspace
+     */
     public function getWorkspace()
     {
         return $this->workspace;
     }
 
-    public function setWorkspace($workspace)
+    /**
+     * Set workspace.
+     *
+     * @param Workspace $workspace
+     */
+    public function setWorkspace(Workspace $workspace = null)
     {
         $this->workspace = $workspace;
-    }
-
-    public function setIsAdmin($bool)
-    {
-        $this->isAdmin = $bool;
-    }
-
-    public function isAdmin()
-    {
-        return $this->isAdmin;
-    }
-
-    public function setUser($user)
-    {
-        $this->user = $user;
-    }
-
-    public function getUser()
-    {
-        return $this->user;
-    }
-
-    public function setName($name)
-    {
-        $this->name = $name;
-    }
-
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    public function isDesktop()
-    {
-        return $this->isDesktop;
-    }
-
-    public function setIsDesktop($bool)
-    {
-        $this->isDesktop = $bool;
-    }
-
-    public function serializeForWidgetPicker()
-    {
-        $return = [
-            'id' => $this->id,
-            'name' => $this->name,
-        ];
-
-        return $return;
-    }
-
-    public function getIcon()
-    {
-        return $this->icon;
-    }
-
-    public function setIcon($icon)
-    {
-        $this->icon = $icon;
-    }
-
-    public function getWidgetDisplayConfigs()
-    {
-        return $this->widgetDisplayConfigs;
-    }
-
-    public function getTemplate()
-    {
-        return $this->template;
-    }
-
-    public function setTemplate($template)
-    {
-        $this->template = $template;
     }
 }

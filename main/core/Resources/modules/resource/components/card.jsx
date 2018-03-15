@@ -4,7 +4,7 @@ import {trans, transChoice} from '#/main/core/translation'
 import {asset} from '#/main/core/scaffolding/asset'
 import {displayDate} from '#/main/core/scaffolding/date'
 
-// TODO : reuse in portal
+// TODO : reuse in portal (cannot be done know because of the video modale)
 
 const ResourceCard = (row) => ({
   poster: row.thumbnail ? asset(row.thumbnail) : null, // todo generate and use thumbnail
@@ -22,7 +22,6 @@ const ResourceCard = (row) => ({
       {trans('published_at', {date: displayDate(row.meta.created, false, true)})}
     </div>,
   footerLong:
-    //TODO: social data anv view count should be displayed in flags. Display in footer should be a hidden option of the platform.
     <div>
       <span className="publish-date">{trans('published_at', {date: displayDate(row.meta.created, false, true)})}</span>
       <span className="creator"> {trans('by')} {row.meta.creator ? row.meta.creator.name: trans('unknown')}</span>

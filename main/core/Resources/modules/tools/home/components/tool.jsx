@@ -14,6 +14,7 @@ import {
 import {FormPageActionsContainer} from '#/main/core/data/form/containers/page-actions.jsx'
 
 import {Editor} from '#/main/core/tools/home/editor/components/editor'
+import {Player} from '#/main/core/tools/home/player/components/player'
 
 const ToolActionsComponent = props =>
   <PageActions>
@@ -52,7 +53,7 @@ const Tool = props =>
         {
           path: '/',
           exact: true,
-          render: () => (<span>Player</span>)
+          component: Player
         }, {
           path: '/edit',
           exact: true,

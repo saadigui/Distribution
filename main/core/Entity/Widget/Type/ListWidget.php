@@ -11,16 +11,6 @@ use Doctrine\ORM\Mapping as ORM;
 class ListWidget extends AbstractWidget
 {
     /**
-     * The URL to retrieve list data.
-     * NB. return format MUST be compatible with front DataList.
-     *
-     * @ORM\Column()
-     *
-     * @var string
-     */
-    private $fetchUrl;
-
-    /**
      * @ORM\Column(type="boolean")
      *
      * @var bool
@@ -68,26 +58,6 @@ class ListWidget extends AbstractWidget
      * @var array
      */
     private $displayedColumns = [];
-
-    /**
-     * Get fetch url.
-     *
-     * @return string
-     */
-    public function getFetchUrl()
-    {
-        return $this->fetchUrl;
-    }
-
-    /**
-     * Set fetch url.
-     *
-     * @param string $fetchUrl
-     */
-    public function setFetchUrl($fetchUrl)
-    {
-        $this->fetchUrl = $fetchUrl;
-    }
 
     /**
      * Is list filterable ?

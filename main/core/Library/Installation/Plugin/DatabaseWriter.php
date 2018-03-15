@@ -122,12 +122,10 @@ class DatabaseWriter
     public function update(PluginBundle $pluginBundle, array $pluginConfiguration)
     {
         /** @var Plugin $plugin */
-        $plugin = $this->em->getRepository('ClarolineCoreBundle:Plugin')->findOneBy(
-            [
-                 'vendorName' => $pluginBundle->getVendorName(),
-                 'bundleName' => $pluginBundle->getBundleName(),
-            ]
-        );
+        $plugin = $this->em->getRepository('ClarolineCoreBundle:Plugin')->findOneBy([
+             'vendorName' => $pluginBundle->getVendorName(),
+             'bundleName' => $pluginBundle->getBundleName(),
+        ]);
 
         if (null === $plugin) {
             $this->log('Unable to retrieve plugin for updating its configuration.', LogLevel::ERROR);
@@ -254,6 +252,22 @@ class DatabaseWriter
             $this->updateWidget($widgetConfiguration, $plugin, $pluginBundle);
         }
 
+        // cleans deleted widgets
+        $installedWidgets = $this->em->getRepository('ClarolineCoreBundle:Widget\Widget')
+            ->findBy(['plugin' => $plugin]);
+        $widgetNames = array_map(function ($widget) {
+            return $widget['name'];
+        }, $processedConfiguration['widgets']);
+
+        $widgetsToDelete = array_filter($installedWidgets, function (Widget $widget) use ($widgetNames) {
+            return !in_array($widget->getName(), $widgetNames);
+        });
+
+        foreach ($widgetsToDelete as $widget) {
+            $this->log('Removing widget '.$widget->getName());
+            $this->em->remove($widget);
+        }
+
         foreach ($processedConfiguration['tools'] as $toolConfiguration) {
             $this->updateTool($toolConfiguration, $plugin);
         }
@@ -298,7 +312,7 @@ class DatabaseWriter
     {
         $this->log('Update resource type '.$resourceConfiguration['name']);
         $resourceType = $this->em->getRepository('ClarolineCoreBundle:Resource\ResourceType')
-            ->findOneByName($resourceConfiguration['name']);
+            ->findOneBy(['name' => $resourceConfiguration['name']]);
 
         if (null === $resourceType) {
             $resourceType = new ResourceType();
@@ -342,6 +356,8 @@ class DatabaseWriter
      * @param array        $widgetConfiguration
      * @param Plugin       $plugin
      * @param PluginBundle $pluginBundle
+     *
+     * @return Widget
      */
     private function updateWidget($widgetConfiguration, Plugin $plugin, PluginBundle $pluginBundle)
     {
@@ -351,9 +367,9 @@ class DatabaseWriter
             ->findOneBy(['name' => $widgetConfiguration['name']]);
 
         if (is_null($widget)) {
-            $this->createWidget($widgetConfiguration, $plugin, $pluginBundle);
+            return $this->createWidget($widgetConfiguration, $plugin, $pluginBundle);
         } else {
-            $this->persistWidget($widgetConfiguration, $plugin, $pluginBundle, $widget);
+            return $this->persistWidget($widgetConfiguration, $plugin, $pluginBundle, $widget);
         }
     }
 
@@ -655,6 +671,8 @@ class DatabaseWriter
      * @param array        $widgetConfiguration
      * @param Plugin       $plugin
      * @param PluginBundle $pluginBundle
+     *
+     * @return Widget
      */
     private function createWidget($widgetConfiguration, Plugin $plugin, PluginBundle $pluginBundle)
     {
@@ -670,6 +688,8 @@ class DatabaseWriter
         }
 
         $this->persistWidget($widgetConfiguration, $plugin, $pluginBundle, $widget);
+
+        return $widget;
     }
 
     /**
@@ -677,6 +697,8 @@ class DatabaseWriter
      * @param Plugin       $plugin
      * @param PluginBundle $pluginBundle
      * @param Widget       $widget
+     *
+     * @return Widget
      */
     private function persistWidget($widgetConfiguration, Plugin $plugin, PluginBundle $pluginBundle, Widget $widget)
     {
@@ -685,8 +707,11 @@ class DatabaseWriter
         $widget->setClass(isset($widgetConfiguration['class']) ? $widgetConfiguration['class'] : null);
         $widget->setAbstract(!!$widgetConfiguration['abstract']);
         $widget->setExportable($widgetConfiguration['exportable']);
+        $widget->setTags($widgetConfiguration['tags']);
 
         $this->em->persist($widget);
+
+        return $widget;
     }
 
     /**

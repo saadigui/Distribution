@@ -17,7 +17,9 @@ use Claroline\CoreBundle\Entity\Plugin;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity()
+ * Widget entity.
+ *
+ * @ORM\Entity(repositoryClass="Claroline\CoreBundle\Repository\Widget\WidgetRepository")
  * @ORM\Table(name="claro_widget", uniqueConstraints={
  *     @ORM\UniqueConstraint(name="widget_plugin_unique", columns={"name", "plugin_id"})
  * })
@@ -26,6 +28,9 @@ class Widget
 {
     use Id;
     use Uuid;
+
+    const CONTEXT_DESKTOP   = 'desktop';
+    const CONTEXT_WORKSPACE = 'workspace';
 
     /**
      * The name of the widget.
@@ -79,7 +84,10 @@ class Widget
      *
      * @var array
      */
-    private $context = [];
+    private $context = [
+        self::CONTEXT_DESKTOP,
+        self::CONTEXT_WORKSPACE,
+    ];
 
     /**
      * @ORM\Column(name="is_exportable", type="boolean")

@@ -1,9 +1,12 @@
 <?php
 
-namespace Claroline\CoreBundle\API\Serializer;
+namespace Claroline\CoreBundle\API\Serializer\Widget;
 
+use Claroline\AppBundle\API\Serializer\SerializerTrait;
 use Claroline\AppBundle\API\SerializerProvider;
 use Claroline\AppBundle\Persistence\ObjectManager;
+use Claroline\CoreBundle\Entity\Widget\Type\AbstractWidget;
+use Claroline\CoreBundle\Entity\Widget\Widget;
 use Claroline\CoreBundle\Entity\Widget\WidgetInstance;
 use JMS\DiExtraBundle\Annotation as DI;
 
@@ -13,6 +16,8 @@ use JMS\DiExtraBundle\Annotation as DI;
  */
 class WidgetInstanceSerializer
 {
+    use SerializerTrait;
+
     /** @var ObjectManager */
     private $om;
 
@@ -40,7 +45,7 @@ class WidgetInstanceSerializer
 
     public function getClass()
     {
-        return 'Claroline\CoreBundle\Entity\WidgetInstance';
+        return 'Claroline\CoreBundle\Entity\Widget\WidgetInstance';
     }
 
     public function serialize(WidgetInstance $widgetInstance, array $options = [])
@@ -62,11 +67,13 @@ class WidgetInstanceSerializer
         }
 
         return [
-            'id' => $widgetInstance->getId(), // todo replace with UUID
+            'id' => $widgetInstance->getUuid(),
             'title' => $widgetInstance->getName(),
             'type' => $widget->getName(),
             'display' => [
-
+                'color' => $widgetInstance->getColor(),
+                'backgroundType' => $widgetInstance->getBackgroundType(),
+                'background' => $widgetInstance->getBackground(),
             ],
             'parameters' => $parameters
         ];
@@ -74,6 +81,41 @@ class WidgetInstanceSerializer
 
     public function deserialize($data, WidgetInstance $widgetInstance, array $options = [])
     {
+        $this->sipe('id', 'setUuid', $data, $widgetInstance);
+        $this->sipe('title', 'setName', $data, $widgetInstance);
+
+        $this->sipe('display.color', 'setColor', $data, $widgetInstance);
+        $this->sipe('display.backgroundType', 'setBackgroundType', $data, $widgetInstance);
+        $this->sipe('display.background', 'setBackground', $data, $widgetInstance);
+
+        /** @var Widget $widget */
+        $widget = $this->om
+            ->getRepository('ClarolineCoreBundle:Widget\Widget')
+            ->findOneBy(['name' => $data['type']]);
+
+        if (!empty($widget)) {
+            $widgetInstance->setWidget($widget);
+
+            // process custom configuration of the widget if any
+            if (!empty($data['parameters']) && !empty($widget->getClass())) {
+                // loads configuration entity for the current instance
+                $typeParameters = $this->om
+                    ->getRepository($widget->getClass())
+                    ->findOneBy(['widgetInstance' => $widgetInstance]);
+
+                if (empty($typeParameters)) {
+                    // no existing parameters => initializes one
+                    $parametersClass = $widget->getClass();
+
+                    /** @var AbstractWidget $typeParameters */
+                    $typeParameters = new $parametersClass;
+                }
+
+                // deserializes custom config and link it to the instance
+                $this->serializer->deserialize($data['parameters'], $typeParameters, $options);
+                $typeParameters->setWidgetInstance($widgetInstance);
+            }
+        }
 
         return $widgetInstance;
     }

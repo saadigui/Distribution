@@ -19,7 +19,6 @@ class ListWidgetSerializer
     public function serialize(ListWidget $widget, array $options = [])
     {
         return [
-            //'fetchUrl' => $widget->getFetchUrl(),
             'filterable' => $widget->isFilterable(),
             'sortable' => $widget->isSortable(),
             'paginated' => $widget->isPaginated(),

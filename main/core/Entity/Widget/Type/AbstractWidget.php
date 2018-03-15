@@ -16,7 +16,7 @@ abstract class AbstractWidget
     /**
      * The parent instance.
      *
-     * @ORM\ManyToOne(targetEntity="Claroline\CoreBundle\Entity\Widget\WidgetInstance")
+     * @ORM\ManyToOne(targetEntity="Claroline\CoreBundle\Entity\Widget\WidgetInstance", cascade={"persist"})
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      *
      * @var WidgetInstance
