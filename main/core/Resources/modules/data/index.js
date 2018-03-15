@@ -7,6 +7,7 @@ import {DATE_TYPE,        dateDefinition}        from '#/main/core/data/types/da
 import {DATE_RANGE_TYPE,  dateRangeDefinition}   from '#/main/core/data/types/date-range'
 import {EMAIL_TYPE,       emailDefinition}       from '#/main/core/data/types/email'
 import {ENUM_TYPE,        enumDefinition}        from '#/main/core/data/types/enum'
+import {ENUM_PLUS_TYPE,   enumPlusDefinition}    from '#/main/core/data/types/enum-plus'
 import {FILE_TYPE,        fileDefinition}        from '#/main/core/data/types/file'
 import {HTML_TYPE,        htmlDefinition}        from '#/main/core/data/types/html'
 import {IMAGE_TYPE,       imageDefinition}       from '#/main/core/data/types/image'
@@ -31,6 +32,7 @@ registerType(DATE_TYPE,        dateDefinition)
 registerType(DATE_RANGE_TYPE,  dateRangeDefinition)
 registerType(EMAIL_TYPE,       emailDefinition)
 registerType(ENUM_TYPE,        enumDefinition)
+registerType(ENUM_PLUS_TYPE,   enumPlusDefinition)
 registerType(FILE_TYPE,        fileDefinition)
 registerType(IMAGE_TYPE,       imageDefinition)
 registerType(HTML_TYPE,        htmlDefinition)
