@@ -39,6 +39,13 @@ class Version20180313114306 extends AbstractMigration
         // updates widget instances
         $this->addSql("
             ALTER TABLE claro_widget_instance 
+            DROP FOREIGN KEY FK_5F89A38582D40A1F
+        ");
+        $this->addSql("
+            DROP INDEX IDX_5F89A38582D40A1F ON claro_widget_instance
+        ");
+        $this->addSql("
+            ALTER TABLE claro_widget_instance 
             DROP FOREIGN KEY FK_5F89A385A76ED395
         ");
         $this->addSql("
@@ -50,11 +57,14 @@ class Version20180313114306 extends AbstractMigration
             ADD backgroundType VARCHAR(255) NOT NULL, 
             ADD background VARCHAR(255) DEFAULT NULL, 
             ADD uuid VARCHAR(36) NOT NULL, 
+            ADD display VARCHAR(255) NOT NULL, 
+            ADD availableDisplays LONGTEXT NOT NULL COMMENT '(DC2Type:json_array)', 
             DROP user_id, 
             DROP is_admin, 
             DROP is_desktop, 
             DROP icon, 
             DROP template, 
+            DROP workspace_id,
             CHANGE name widget_name VARCHAR(255) NOT NULL
         ");
         $this->addSql("

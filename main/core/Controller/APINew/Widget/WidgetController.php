@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Claroline\CoreBundle\Controller\APINew;
+namespace Claroline\CoreBundle\Controller\APINew\Widget;
 
 use Claroline\AppBundle\API\SerializerProvider;
 use Claroline\AppBundle\Persistence\ObjectManager;
@@ -21,6 +21,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration as EXT;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
+ * Exposes platform widgets.
+ *
  * @EXT\Route("/widget", options={"expose": true})
  */
 class WidgetController

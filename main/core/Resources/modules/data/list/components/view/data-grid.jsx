@@ -28,13 +28,15 @@ const DataGridItem = props =>
       backgroundPosition: 'center center',
       backgroundRepeat: 'no-repeat'
     }}>
-      <span className="item-icon-container">
-        {typeof props.data.icon === 'string' ?
-          <span className={props.data.icon} />
-         :
-          props.data.icon
-        }
-      </span>
+      {props.data.icon &&
+        <span className="item-icon-container">
+          {typeof props.data.icon === 'string' ?
+            <span className={props.data.icon} />
+            :
+            props.data.icon
+          }
+        </span>
+      }
 
       {props.data.flags &&
         <div className="item-flags">

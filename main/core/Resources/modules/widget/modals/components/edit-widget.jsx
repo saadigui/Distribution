@@ -11,7 +11,7 @@ const MODAL_EDIT_WIDGET = 'MODAL_EDIT_WIDGET'
 const EditWidgetModal = props =>
   <DataFormModal
     {...props}
-    title={trans('edit_widget', {}, 'home')}
+    title={trans('edit_widget', {}, 'widget')}
     sections={[
       {
         id: 'general',
@@ -19,7 +19,16 @@ const EditWidgetModal = props =>
         primary: true,
         fields: [
           {
-            name: 'title',
+            name: 'type',
+            type: 'translation',
+            label: trans('widget'),
+            readOnly: true,
+            hideLabel: true,
+            options: {
+              domain: 'widget'
+            }
+          }, {
+            name: 'name',
             type: 'string',
             label: trans('name')
           }
@@ -31,12 +40,13 @@ const EditWidgetModal = props =>
         fields: [
           {
             name: 'display.color',
-            label: trans('color'),
+            label: trans('textColor'),
             type: 'color'
           }, {
             name: 'display.backgroundType',
             label: trans('background'),
             type: 'enum',
+            required: true,
             options: {
               noEmpty: true,
               choices: {
@@ -48,16 +58,16 @@ const EditWidgetModal = props =>
             linked: [
               {
                 name: 'display.background',
-                label: trans('image'),
+                label: trans('backgroundImage'),
                 type: 'image',
                 required: true,
-                displayed: (widget) => widget.display && 'image' === widget.display.background,
+                displayed: (widget) => widget.display && 'image' === widget.display.backgroundType,
               }, {
                 name: 'display.background',
-                label: trans('color'),
+                label: trans('backgroundColor'),
                 type: 'color',
                 required: true,
-                displayed: (widget) => widget.display && 'color' === widget.display.background
+                displayed: (widget) => widget.display && 'color' === widget.display.backgroundType
               }
             ]
           }

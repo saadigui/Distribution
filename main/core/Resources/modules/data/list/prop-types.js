@@ -177,7 +177,7 @@ const DataCard = {
     // onClick: T.oneOfType([T.string, T.func]), // either a url or a custom func to execute
     className: T.string,
     poster: T.string,
-    icon: T.oneOfType([T.string, T.element]).isRequired,
+    icon: T.oneOfType([T.string, T.element]),
     title: T.string.isRequired,
     subtitle: T.string,
     contentText: T.string,

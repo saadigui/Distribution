@@ -16,5 +16,13 @@ registerModals([
 bootstrap(
   '.home-container',
   HomeTool,
-  reducer
+  reducer,
+  (initialData) => Object.assign({}, initialData, {
+    editor: {
+      data: {
+        widgets: initialData.widgets,
+        tabs: initialData.widgets
+      }
+    }
+  })
 )

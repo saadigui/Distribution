@@ -7,28 +7,39 @@ import uniq from 'lodash/uniq'
 import {trans} from '#/main/core/translation'
 import {BaseModal} from '#/main/core/layout/modal/components/base'
 
+import {Widget as WidgetTypes} from '#/main/core/widget/prop-types'
+
 const MODAL_ADD_WIDGET = 'MODAL_ADD_WIDGET'
 
 const WidgetPreview = props =>
-  <li className="widget-preview">
-    <h5 className="widget-title">{props.name}</h5>
-  </li>
+  <a className="widget-preview" role="button" onClick={props.onClick}>
+    <h5 className="widget-title">
+      {trans(props.name, {}, 'widget')}
+    </h5>
+
+    {props.meta.abstract}
+  </a>
 
 WidgetPreview.propTypes = {
-
+  onClick: T.func.isRequired
 }
 
 const WidgetsGrid = props =>
-  <ul className="modal-body widgets-preview">
+  <div className="modal-body">
     {props.widgets.map((widget, index) =>
-      <WidgetPreview key={index} {...widget} />
+      <WidgetPreview
+        key={index}
+        onClick={() => props.add(widget)}
+        {...widget}
+      />
     )}
-  </ul>
+  </div>
 
 WidgetsGrid.propTypes = {
-  widgets: T.arrayOf(T.shape({
-
-  })).isRequired
+  widgets: T.arrayOf(T.shape(
+    WidgetTypes.propTypes
+  )).isRequired,
+  add: T.func.isRequired
 }
 
 class AddWidgetModal extends Component {
@@ -36,20 +47,20 @@ class AddWidgetModal extends Component {
     super(props)
 
     this.state = {
-      activeCategory: 'all',
-      categories: [].concat(['all'], uniq(flatten(this.props.availableWidgets.map(widget => widget.categories)))),
+      activeTag: 'all',
+      tags: [].concat(['all'], uniq(flatten(this.props.availableWidgets.map(widget => widget.tags)))),
       widgets: this.props.availableWidgets
     }
 
     this.filterTypes = this.filterTypes.bind(this)
   }
 
-  filterTypes(category) {
+  filterTypes(tag) {
     this.setState({
-      activeCategory: category,
-      widgets: 'all' === category ?
+      activeTag: tag,
+      widgets: 'all' === tag ?
         this.props.availableWidgets :
-        this.props.availableWidgets.filter(widget => widget.categories && -1 !== widget.categories.indexOf(category))
+        this.props.availableWidgets.filter(widget => widget.tags && -1 !== widget.tags.indexOf(tag))
     })
   }
 
@@ -58,23 +69,23 @@ class AddWidgetModal extends Component {
       <BaseModal
         {...this.props}
         icon="fa fa-fw fa-plus"
-        title={trans('add_widget', {}, 'home')}
+        title={trans('add_widget', {}, 'widget')}
         bsSize="lg"
       >
         <ul className="nav nav-tabs">
-          {this.state.categories.map((category, index) =>
+          {this.state.tags.map((tag, index) =>
             <li key={index} className={classes({
-              active: category === this.state.activeCategory})
+              active: tag === this.state.activeTag})
             }>
               <a
                 role="button"
                 href=""
                 onClick={(e) => {
                   e.preventDefault()
-                  this.filterTypes(category)
+                  this.filterTypes(tag)
                 }}
               >
-                {trans(category)}
+                {trans(tag, {}, 'widget')}
               </a>
             </li>
           )}
@@ -82,6 +93,7 @@ class AddWidgetModal extends Component {
 
         <WidgetsGrid
           widgets={this.state.widgets}
+          add={this.props.add}
         />
       </BaseModal>
     )
@@ -89,9 +101,9 @@ class AddWidgetModal extends Component {
 }
 
 AddWidgetModal.propTypes = {
-  availableWidgets: T.arrayOf(T.shape({
-    // widget
-  })).isRequired,
+  availableWidgets: T.arrayOf(T.shape(
+    WidgetTypes.propTypes
+  )).isRequired,
   add: T.func.isRequired
 }
 

@@ -157,16 +157,17 @@ plugin:
         - name: resource-list
           parent: list
           context: [workspace, desktop]
+          tags: [resources]
 
         - name: user-list
           parent: list
           context: [workspace, desktop]
-          exportable: false
           tags: [users]
 
         - name: workspace-list
           parent: list
           context: [desktop]
+          tags: [workspaces]
 
     tools:
         - name: home

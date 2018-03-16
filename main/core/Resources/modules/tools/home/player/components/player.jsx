@@ -5,6 +5,8 @@ import {connect} from 'react-redux'
 import {Widget} from '#/main/core/widget/components/widget'
 import {WidgetInstance as WidgetInstanceTypes} from '#/main/core/widget/prop-types'
 
+import {select} from '#/main/core/tools/home/selectors'
+
 const PlayerComponent = props =>
   <div>
     {props.widgets.map((widgetInstance, index) =>
@@ -25,22 +27,8 @@ PlayerComponent.propTypes = {
 
 const Player = connect(
   (state) => ({
-    context: {},
-    widgets: [
-      {
-        id: 'id1',
-        type: 'resource-list',
-        title: 'My awesome widget 1',
-        parameters: {}
-      }, {
-        id: 'id2',
-        type: 'simple',
-        title: 'My awesome widget 2',
-        parameters: {
-          content: 'Tchou tchou train'
-        }
-      }
-    ]
+    context: select.context(state),
+    widgets: select.widgets(state)
   })
 )(PlayerComponent)
 

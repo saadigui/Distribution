@@ -39,6 +39,20 @@ class ListWidget extends AbstractWidget
     private $pageSize = 20;
 
     /**
+     * @ORM\Column()
+     *
+     * @var array
+     */
+    private $display = 'tiles-sm';
+
+    /**
+     * @ORM\Column(type="json_array")
+     *
+     * @var array
+     */
+    private $availableDisplays = ['table', 'table-sm', 'tiles', 'tiles-sm', 'list'];
+
+    /**
      * @ORM\Column(type="json_array")
      *
      * @var array
@@ -136,6 +150,46 @@ class ListWidget extends AbstractWidget
     public function setPageSize($pageSize)
     {
         $this->pageSize = $pageSize;
+    }
+
+    /**
+     * Get display.
+     *
+     * @return array
+     */
+    public function getDisplay()
+    {
+        return $this->display;
+    }
+
+    /**
+     * Set display.
+     *
+     * @param $display
+     */
+    public function setDisplay($display)
+    {
+        $this->display = $display;
+    }
+
+    /**
+     * Get available displays.
+     *
+     * @return array
+     */
+    public function getAvailableDisplays()
+    {
+        return $this->availableDisplays;
+    }
+
+    /**
+     * Set available display.
+     *
+     * @param array $availableDisplays
+     */
+    public function setAvailableDisplays(array $availableDisplays)
+    {
+        $this->availableDisplays = $availableDisplays;
     }
 
     /**

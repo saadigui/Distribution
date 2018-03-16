@@ -11,42 +11,43 @@
 
 namespace Claroline\CoreBundle\Controller\Tool;
 
+use Claroline\AppBundle\API\SerializerProvider;
 use Claroline\CoreBundle\Controller\Exception\WorkspaceAccessDeniedException;
-use Claroline\CoreBundle\Entity\Widget\WidgetInstance;
+use Claroline\CoreBundle\Entity\Widget\Widget;
 use Claroline\CoreBundle\Entity\Workspace\Workspace;
-use Claroline\CoreBundle\Event\DisplayWidgetEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration as EXT;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
  * Controller of the workspace/desktop home page.
  *
- * @EXT\Route(
- *     "/home",
- *     options = {"expose"=true}
- * )
+ * @EXT\Route("/home", options={"expose"=true})
  */
 class HomeController extends Controller
 {
+    /** @var AuthorizationCheckerInterface */
     private $authorization;
-    private $eventDispatcher;
+
+    /** @var SerializerProvider */
+    private $serializer;
 
     /**
      * HomeController constructor.
      *
      * @DI\InjectParams({
-     *     "authorization"   = @DI\Inject("security.authorization_checker"),
-     *     "eventDispatcher" = @DI\Inject("event_dispatcher")
+     *     "authorization" = @DI\Inject("security.authorization_checker"),
+     *     "serializer"    = @DI\Inject("claroline.api.serializer")
      * })
+     *
+     * @param AuthorizationCheckerInterface $authorization
+     * @param SerializerProvider            $serializer
      */
-    public function __construct(AuthorizationCheckerInterface $authorization, EventDispatcherInterface $eventDispatcher)
+    public function __construct(AuthorizationCheckerInterface $authorization, SerializerProvider $serializer)
     {
         $this->authorization = $authorization;
-        $this->eventDispatcher = $eventDispatcher;
+        $this->serializer = $serializer;
     }
 
     /**
@@ -60,62 +61,68 @@ class HomeController extends Controller
     public function displayDesktopAction()
     {
         return [
-
+            'editable' => true,
+            'context' => [
+                'type' => Widget::CONTEXT_DESKTOP
+            ],
+            'tabs' => [],
+            'widgets' => [
+                [
+                    'id' => 'id1',
+                    'type' => 'resource-list',
+                    'name' => 'Choisissez votre module de formation',
+                    'parameters' => [
+                        'display' => 'tiles',
+                        'availableDisplays' => ['tiles'],
+                        'filterable' => false,
+                        'sortable' => false,
+                        'paginated' => false
+                    ]
+                ]
+            ],
         ];
     }
 
     /**
-     * @EXT\Route(
-     *     "/{workspace}/home/display/tab/{tabId}",
-     *     name="claro_workspace_home_display",
-     *     options = {"expose"=true}
-     * )
-     * @EXT\Template("ClarolineCoreBundle:Tool\workspace\home:workspaceHome.html.twig")
+     * Displays the workspace home.
      *
-     * Displays the workspace home tool.
+     * @EXT\Route("/workspace/{workspace}")
+     * @EXT\Template("ClarolineCoreBundle:Tool:home.html.twig")
      *
-     * @param \Claroline\CoreBundle\Entity\Workspace\Workspace $workspace
+     * @param Workspace $workspace
      *
      * @return array
      */
-    public function workspaceHomeDisplayAction(Workspace $workspace, $tabId = -1)
+    public function displayWorkspaceAction(Workspace $workspace)
     {
-        $this->checkWorkspaceHomeAccess($workspace);
-        $canEdit = $this->authorization->isGranted(['home', 'edit'], $workspace);
-
-        return ['workspace' => $workspace, 'canEdit' => $canEdit, 'tabId' => $tabId];
-    }
-
-    /**
-     * @EXT\Route(
-     *     "/widget/instance/{widgetInstance}/content",
-     *     name="claro_widget_instance_content",
-     *     options={"expose"=true}
-     * )
-     *
-     * Get a widget instance content.
-     *
-     * @param WidgetInstance $widgetInstance
-     *
-     * @return JsonResponse
-     */
-    public function getWidgetInstanceContentAction(WidgetInstance $widgetInstance)
-    {
-        $event = $this->eventDispatcher->dispatch(
-            "widget_{$widgetInstance->getWidget()->getName()}",
-            new DisplayWidgetEvent($widgetInstance)
-        );
-
-        return new JsonResponse($event->getContent());
-    }
-
-    private function checkWorkspaceHomeAccess(Workspace $workspace)
-    {
+        // checks user access
         if (!$this->authorization->isGranted('home', $workspace)) {
             $exception = new WorkspaceAccessDeniedException();
             $exception->setWorkspace($workspace);
 
             throw $exception;
         }
+
+        return [
+            'editable' => $this->authorization->isGranted(['home', 'edit'], $workspace),
+            'context' => [
+                'type' => Widget::CONTEXT_WORKSPACE,
+                'data' => $this->serializer->serialize($workspace)
+            ],
+            'tabs' => [],
+            'widgets' => [
+                [
+                    'id' => 'id1',
+                    'type' => 'resource-list',
+                    'name' => 'My awesome widget 1',
+                    'parameters' => [
+                        'display' => 'tiles',
+                        'filterable' => false,
+                        'sortable' => false,
+                        'paginated' => false
+                    ]
+                ]
+            ],
+        ];
     }
 }

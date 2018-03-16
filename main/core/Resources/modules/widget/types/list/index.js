@@ -1,7 +1,10 @@
+import merge from 'lodash/merge'
+
 import {makeReducer} from '#/main/core/scaffolding/reducer'
 import {makeListReducer} from '#/main/core/data/list/reducer'
 
 import {ListWidget} from '#/main/core/widget/types/list/components/widget'
+import {WIDGET_UPDATE_CONFIG} from '#/main/core/widget/types/list/actions'
 
 /**
  * List widget application.
@@ -14,8 +17,15 @@ import {ListWidget} from '#/main/core/widget/types/list/components/widget'
 export const App = (context, parameters = {}) => ({
   component: ListWidget,
   store: {
-    config: makeReducer({}, {}),
-    list: makeListReducer('list', {}, {}, {
+    config: makeReducer({}, {
+      [WIDGET_UPDATE_CONFIG]: (state, action) => merge({}, state, action.config)
+    }),
+    list: makeListReducer('list', {}, {
+      invalidated: makeReducer(false, {
+        // we invalidate the list when target url is changed to force reloading
+        [WIDGET_UPDATE_CONFIG]: (state, action) => !!action.config.fetchUrl
+      })
+    }, {
       selectable: false,
       filterable: parameters.filterable,
       sortable: parameters.sortable,
@@ -24,8 +34,8 @@ export const App = (context, parameters = {}) => ({
   },
   initialData: () => ({ // function is for retro compatibility with bootstrap()
     config: parameters,
-    list: {
+    list: parameters.paginated ? {
       pageSize: parameters.pageSize
-    }
+    } : {}
   })
 })

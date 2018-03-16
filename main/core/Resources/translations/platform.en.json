@@ -1567,5 +1567,10 @@
     "poster": "Poster",
     "external": "External",
     "internal": "Internal",
-    "force_organization_creation": "Force the organization creation at the user registration"
+    "force_organization_creation": "Force the organization creation at the user registration",
+    "image": "Image",
+    "textColor": "Text color",
+    "background": "Background",
+    "backgroundColor": "Background color",
+    "backgroundImage": "Background image"
 }

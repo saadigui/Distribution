@@ -2,6 +2,7 @@ import React from 'react'
 import {PropTypes as T} from 'prop-types'
 import {connect} from 'react-redux'
 
+import {DataListProperty as DataListPropertyTypes} from '#/main/core/data/list/prop-types'
 import {DataListContainer} from '#/main/core/data/list/containers/data-list'
 
 const ListWidgetComponent = props =>
@@ -12,19 +13,30 @@ const ListWidgetComponent = props =>
       autoload: true
     }}
     open={{
-      action: props.open
+      action: (row) => props.openRow(row, props.open)
     }}
     definition={props.definition}
     card={props.card}
+    display={{
+      current: props.display,
+      available: props.availableDisplays
+    }}
   />
 
 ListWidgetComponent.propTypes = {
   open: T.func,
+  openRow: T.func.isRequired,
   fetchUrl: T.oneOfType([T.string, T.array]).isRequired,
-  definition: T.arrayOf(T.shape({
-    // todo standard list definition
-  })).isRequired,
-  card: T.func.isRequired
+
+  /**
+   * Definition of the data properties.
+   */
+  definition: T.arrayOf(
+    T.shape(DataListPropertyTypes.propTypes)
+  ).isRequired,
+  card: T.func.isRequired,
+  display: T.string,
+  availableDisplays: T.array
 }
 
 const ListWidget = connect(
@@ -32,7 +44,15 @@ const ListWidget = connect(
     fetchUrl: state.config.fetchUrl,
     open: state.config.open,
     definition: state.config.definition,
-    card: state.config.card
+    card: state.config.card,
+    display: state.config.display,
+    availableDisplays: state.config.availableDisplays
+  }),
+  (dispatch, ownProps) => ({
+    openRow(row, callback) {
+      // this is slightly ugly to pass the dispatcher like this
+      return callback(row, dispatch)
+    }
   })
 )(ListWidgetComponent)
 

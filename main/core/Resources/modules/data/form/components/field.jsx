@@ -18,9 +18,10 @@ class FormField extends Component {
         <FormGroup
           id={this.props.name}
           label={this.props.label}
+          hideLabel={this.props.hideLabel}
           help={this.props.help}
         >
-          <div>
+          <div className="read-only">
             {typeDef.render(this.props.value, this.props.options) || '-'}
           </div>
         </FormGroup>

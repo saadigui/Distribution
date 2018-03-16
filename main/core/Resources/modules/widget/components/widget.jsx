@@ -14,8 +14,8 @@ import {getWidget} from '#/main/core/widget/types'
  */
 const Widget = props =>
   <section className="widget">
-    {props.instance.title &&
-      <h2 className="h-first widget-title">{props.instance.title}</h2>
+    {props.instance.name &&
+      <h2 className="h-first widget-title">{props.instance.name}</h2>
     }
 
     <EmbeddedApp

@@ -1,5 +1,6 @@
 import React from 'react'
 import {PropTypes as T} from 'prop-types'
+import {connect} from 'react-redux'
 
 import {trans} from '#/main/core/translation'
 import {navigate, matchPath, withRouter} from '#/main/core/router'
@@ -13,6 +14,7 @@ import {
 } from '#/main/core/layout/router'
 import {FormPageActionsContainer} from '#/main/core/data/form/containers/page-actions.jsx'
 
+import {select} from '#/main/core/tools/home/selectors'
 import {Editor} from '#/main/core/tools/home/editor/components/editor'
 import {Player} from '#/main/core/tools/home/player/components/player'
 
@@ -44,29 +46,40 @@ const Tool = props =>
     <PageHeader
       title={trans('desktop')}
     >
-      <ToolActions />
+      {props.editable &&
+        <ToolActions />
+      }
     </PageHeader>
 
-    <RoutedPageContent
-      headerSpacer={true}
-      routes={[
-        {
-          path: '/',
-          exact: true,
-          component: Player
-        }, {
-          path: '/edit',
-          exact: true,
-          component: Editor
-        }
-      ]}
-    />
+    {props.editable ?
+      <RoutedPageContent
+        headerSpacer={true}
+        routes={[
+          {
+            path: '/',
+            exact: true,
+            component: Player
+          }, {
+            path: '/edit',
+            exact: true,
+            component: Editor
+          }
+        ]}
+      /> :
+      <Player />
+    }
   </RoutedPageContainer>
 
 Tool.propTypes = {
-
+  editable: T.bool.isRequired
 }
 
+const HomeTool = connect(
+  (state) => ({
+    editable: select.editable(state)
+  })
+)(Tool)
+
 export {
-  Tool as HomeTool
+  HomeTool
 }

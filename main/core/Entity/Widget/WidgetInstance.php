@@ -13,7 +13,6 @@ namespace Claroline\CoreBundle\Entity\Widget;
 
 use Claroline\AppBundle\Entity\Identifier\Id;
 use Claroline\AppBundle\Entity\Identifier\Uuid;
-use Claroline\CoreBundle\Entity\Workspace\Workspace;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -70,16 +69,6 @@ class WidgetInstance
      * @var string
      */
     private $background = null;
-
-    /**
-     * The parent Workspace when widget is rendered in "workspace" context.
-     *
-     * @ORM\ManyToOne(targetEntity="Claroline\CoreBundle\Entity\Workspace\Workspace")
-     * @ORM\JoinColumn(onDelete="CASCADE")
-     *
-     * @var Workspace
-     */
-    private $workspace = null;
 
     /**
      * Get name.
@@ -179,25 +168,5 @@ class WidgetInstance
     public function setBackground($background)
     {
         $this->background = $background;
-    }
-
-    /**
-     * Get workspace.
-     *
-     * @return Workspace
-     */
-    public function getWorkspace()
-    {
-        return $this->workspace;
-    }
-
-    /**
-     * Set workspace.
-     *
-     * @param Workspace $workspace
-     */
-    public function setWorkspace(Workspace $workspace = null)
-    {
-        $this->workspace = $workspace;
     }
 }

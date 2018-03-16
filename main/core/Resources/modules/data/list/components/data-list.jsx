@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import {PropTypes as T} from 'prop-types'
 import merge from 'lodash/merge'
 
-import {t, trans, transChoice} from '#/main/core/translation'
+import {trans, transChoice} from '#/main/core/translation'
 
 import {constants as listConst} from '#/main/core/data/list/constants'
 import {
@@ -39,7 +39,10 @@ class DataList extends Component {
     this.translations = merge({}, listConst.DEFAULT_TRANSLATIONS, this.props.translations)
 
     // enables selected display mode
-    this.setDisplayMode(this.props.display ? this.props.display.current : listConst.DEFAULT_DISPLAY_MODE, true)
+    this.setDisplayMode(this.props.display && this.props.display.current ?
+      this.props.display.current : listConst.DEFAULT_DISPLAY_MODE,
+      true
+    )
 
     this.setDisplayMode = this.setDisplayMode.bind(this)
     this.toggleColumn   = this.toggleColumn.bind(this)
@@ -53,7 +56,9 @@ class DataList extends Component {
     }
 
     if (this.props.display !== nextProps.display) {
-      this.setDisplayMode(nextProps.display ? nextProps.display.current : listConst.DEFAULT_DISPLAY_MODE, false)
+      this.setDisplayMode(nextProps.display && nextProps.display.current ?
+        nextProps.display.current : listConst.DEFAULT_DISPLAY_MODE
+      )
     }
   }
 
@@ -113,11 +118,12 @@ class DataList extends Component {
 
   render() {
     // enables and configures list tools
+    const availableDisplays = this.props.display.available ? this.props.display.available : Object.keys(listConst.DISPLAY_MODES)
     let displayTool
-    if (1 < this.props.display.available.length) {
+    if (1 < availableDisplays.length) {
       displayTool = {
         current: this.state.currentDisplay,
-        available: this.props.display.available,
+        available: availableDisplays,
         onChange: this.setDisplayMode
       }
     }
@@ -147,7 +153,7 @@ class DataList extends Component {
     if (this.props.deleteAction) {
       actions.push({
         icon: 'fa fa-fw fa-trash-o',
-        label: t('delete'),
+        label: trans('delete'),
         dangerous: true,
         displayed: this.props.deleteAction.displayed,
         disabled: this.props.deleteAction.disabled,
@@ -254,12 +260,12 @@ DataList.propTypes = {
      */
     available: T.arrayOf(
       T.oneOf(Object.keys(listConst.DISPLAY_MODES))
-    ).isRequired,
+    ),
 
     /**
      * Current format.
      */
-    current: T.oneOf(Object.keys(listConst.DISPLAY_MODES)).isRequired
+    current: T.oneOf(Object.keys(listConst.DISPLAY_MODES))
   }),
 
   /**

@@ -8,6 +8,8 @@ import {TooltipAction} from '#/main/core/layout/button/components/tooltip-action
 import {Widget} from '#/main/core/widget/components/widget'
 import {WidgetInstance as WidgetInstanceTypes} from '#/main/core/widget/prop-types'
 
+import {select} from '#/main/core/tools/home/selectors'
+import {select as editorSelect} from '#/main/core/tools/home/editor/selectors'
 import {actions} from '#/main/core/tools/home/editor/actions'
 
 const WidgetEditor = props =>
@@ -16,7 +18,7 @@ const WidgetEditor = props =>
       id={`add-before-${props.instance.id}`}
       className="btn-link-default"
       icon="fa fa-fw fa-plus"
-      label={trans('add_widget_before', {}, 'home')}
+      label={trans('add_widget_before', {}, 'widget')}
       action={props.insert}
     />
 
@@ -69,7 +71,7 @@ const EditorComponent = props =>
       className="btn btn-block btn-primary btn-add"
       onClick={() => props.insertWidget(props.context)}
     >
-      {trans('add_widget', {}, 'home')}
+      {trans('add_widget', {}, 'widget')}
     </button>
   </div>
 
@@ -85,22 +87,9 @@ EditorComponent.propTypes = {
 
 const Editor = connect(
   state => ({
-    context: {},
-    widgets: [
-      {
-        id: 'id1',
-        type: 'resource-list',
-        title: 'My awesome widget 1',
-        parameters: {}
-      }, {
-        id: 'id2',
-        type: 'simple',
-        title: 'My awesome widget 2',
-        parameters: {
-          content: 'Tchou tchou train'
-        }
-      }
-    ]
+    context: select.context(state),
+    widgets: editorSelect.widgets(state),
+    tabs: editorSelect.widgets(state)
   }),
   dispatch => ({
     insertWidget(context, position) {

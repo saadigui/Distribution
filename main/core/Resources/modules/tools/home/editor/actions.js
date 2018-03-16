@@ -12,7 +12,7 @@ export const WIDGET_REMOVE = 'WIDGET_REMOVE'
 
 export const actions = {}
 
-actions.addWidget = makeActionCreator(WIDGET_ADD, 'position', 'widgetType')
+actions.addWidget = makeActionCreator(WIDGET_ADD, 'position', 'widget')
 actions.updateWidget = makeActionCreator(WIDGET_ADD, 'position', 'widget')
 actions.removeWidget = makeActionCreator(WIDGET_REMOVE, 'position')
 
@@ -22,18 +22,25 @@ actions.insertWidget = (context, position) => ({
     url: ['apiv2_widget_available', {context: 'desktop'}],
     success: (response, dispatch) => dispatch(modalActions.showModal(MODAL_ADD_WIDGET, {
       availableWidgets: response,
-      add: (widgetType, dispatch) => dispatch(actions.addWidget(position, widgetType))
+      add: (widgetType) => dispatch(actions.createWidget(position, widgetType.name))
     }))
   }
 })
 
-actions.editWidget = (position, widget) => modalActions.showModal(MODAL_EDIT_WIDGET, {
+actions.createWidget = (position, widgetType) => (dispatch) => dispatch(modalActions.showModal(MODAL_EDIT_WIDGET, {
+  data: {
+    type: widgetType
+  },
+  save: (updated) => dispatch(actions.addWidget(position, updated))
+}))
+
+actions.editWidget = (position, widget) => (dispatch) => dispatch(modalActions.showModal(MODAL_EDIT_WIDGET, {
   data: widget,
-  save: (updated, dispatch) => dispatch(actions.updateWidget(position, updated))
-})
+  save: (updated) => dispatch(actions.updateWidget(position, updated))
+}))
 
 actions.deleteWidget = (position) => (dispatch) => dispatch(modalActions.showModal(MODAL_DELETE_CONFIRM, {
-  title: trans('widget_delete_confirm_title', {}, 'home'),
-  question: trans('widget_delete_confirm_message', {}, 'home'),
+  title: trans('widget_delete_confirm_title', {}, 'widget'),
+  question: trans('widget_delete_confirm_message', {}, 'widget'),
   handleConfirm: () => dispatch(actions.removeWidget(position))
 }))

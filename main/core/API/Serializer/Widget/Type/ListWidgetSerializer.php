@@ -23,6 +23,8 @@ class ListWidgetSerializer
             'sortable' => $widget->isSortable(),
             'paginated' => $widget->isPaginated(),
             'pageSize' => $widget->getPageSize(),
+            'display' => $widget->getDisplay(),
+            'availableDisplays' => $widget->getAvailableDisplays(),
             'defaultFilters' => $widget->getDefaultFilters(),
             'availableColumns' => $widget->getAvailableColumns(),
         ];
@@ -30,6 +32,7 @@ class ListWidgetSerializer
 
     public function deserialize($data, ListWidget $widget, array $options = [])
     {
+        // todo implement
 
         return $widget;
     }
