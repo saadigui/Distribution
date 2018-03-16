@@ -1,5 +1,6 @@
 import React, {Component} from 'react'
 import {PropTypes as T} from 'prop-types'
+import classes from 'classnames'
 import merge from 'lodash/merge'
 
 import {trans, transChoice} from '#/main/core/translation'
@@ -169,12 +170,20 @@ class DataList extends Component {
 
     return (
       <div className="data-list">
-        <ListHeader
-          disabled={0 === this.props.totalResults}
-          display={displayTool}
-          columns={columnsTool}
-          filters={filtersTool}
-        />
+        {this.props.title &&
+          React.createElement('h'+this.props.level, {
+            className: classes(this.props.displayLevel && `h${this.props.displayLevel}`)
+          }, this.props.title)
+        }
+
+        {(displayTool || columnsTool || filtersTool) &&
+          <ListHeader
+            disabled={0 === this.props.totalResults}
+            display={displayTool}
+            columns={columnsTool}
+            filters={filtersTool}
+          />
+        }
 
         {0 < this.props.totalResults &&
           React.createElement(listConst.DISPLAY_MODES[this.state.currentDisplay].component, {
@@ -203,6 +212,10 @@ class DataList extends Component {
 }
 
 DataList.propTypes = {
+  level: T.number,
+  displayLevel: T.number,
+  title: T.string,
+
   /**
    * The data list to display.
    */
@@ -335,6 +348,7 @@ DataList.propTypes = {
 }
 
 DataList.defaultProps = {
+  level: 2,
   actions: [],
   filterColumns: true,
   display: {

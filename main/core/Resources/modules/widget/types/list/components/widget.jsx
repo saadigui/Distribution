@@ -8,6 +8,8 @@ import {DataListContainer} from '#/main/core/data/list/containers/data-list'
 const ListWidgetComponent = props =>
   <DataListContainer
     name="list"
+    title={props.title}
+    level={3}
     fetch={{
       url: props.fetchUrl,
       autoload: true
@@ -24,6 +26,7 @@ const ListWidgetComponent = props =>
   />
 
 ListWidgetComponent.propTypes = {
+  title: T.string,
   open: T.func,
   openRow: T.func.isRequired,
   fetchUrl: T.oneOfType([T.string, T.array]).isRequired,
@@ -46,7 +49,8 @@ const ListWidget = connect(
     definition: state.config.definition,
     card: state.config.card,
     display: state.config.display,
-    availableDisplays: state.config.availableDisplays
+    availableDisplays: state.config.availableDisplays,
+    title: state.config.title
   }),
   (dispatch, ownProps) => ({
     openRow(row, callback) {

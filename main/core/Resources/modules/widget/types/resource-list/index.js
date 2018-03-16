@@ -34,6 +34,7 @@ const App = (context, parameters) => ListApp(context, merge({}, parameters, {
         ['apiv2_widget_resource_list_ws', {workspace: context.data.id, parent: resourceNode.id}]
 
       return dispatch(listWidgetActions.updateWidgetConfig({
+        title: resourceNode.name,
         fetchUrl: fetchUrl,
         display: 'list', // todo mega hack
         availableDisplays: ['list']  // todo double mega hack

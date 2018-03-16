@@ -178,24 +178,26 @@ DataGridSort.propTypes = {
 
 const DataGrid = props =>
   <div className={`data-grid data-grid-${props.size}`}>
-    <div className="data-grid-header">
-      {props.selection &&
-        <Checkbox
-          id="data-grid-select"
-          label={t('list_select_all')}
-          labelChecked={t('list_deselect_all')}
-          checked={0 < props.selection.current.length}
-          onChange={() => props.selection.toggleAll(props.data)}
-        />
-      }
+    {(props.selection || props.sorting) &&
+      <div className="data-grid-header">
+        {props.selection &&
+          <Checkbox
+            id="data-grid-select"
+            label={t('list_select_all')}
+            labelChecked={t('list_deselect_all')}
+            checked={0 < props.selection.current.length}
+            onChange={() => props.selection.toggleAll(props.data)}
+          />
+        }
 
-      {1 < props.count && props.sorting &&
-        <DataGridSort
-          {...props.sorting}
-          available={getSortableProps(props.columns)}
-        />
-      }
-    </div>
+        {1 < props.count && props.sorting &&
+          <DataGridSort
+            {...props.sorting}
+            available={getSortableProps(props.columns)}
+          />
+        }
+      </div>
+    }
 
     {props.selection && 0 < props.selection.current.length &&
       <ListBulkActions
