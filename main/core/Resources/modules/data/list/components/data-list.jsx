@@ -172,7 +172,7 @@ class DataList extends Component {
       <div className="data-list">
         {this.props.title &&
           React.createElement('h'+this.props.level, {
-            className: classes(this.props.displayLevel && `h${this.props.displayLevel}`)
+            className: classes('list-title', this.props.displayLevel && `h${this.props.displayLevel}`)
           }, this.props.title)
         }
 

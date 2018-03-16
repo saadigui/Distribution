@@ -44,7 +44,7 @@ const ToolActions = withRouter(ToolActionsComponent)
 const Tool = props =>
   <RoutedPageContainer>
     <PageHeader
-      title={trans('desktop')}
+      title={'desktop' === props.context.type ? trans('desktop') : props.context.data.name}
     >
       {props.editable &&
         <ToolActions />
@@ -76,6 +76,7 @@ Tool.propTypes = {
 
 const HomeTool = connect(
   (state) => ({
+    context: select.context(state),
     editable: select.editable(state)
   })
 )(Tool)

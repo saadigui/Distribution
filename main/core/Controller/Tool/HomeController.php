@@ -104,6 +104,7 @@ class HomeController extends Controller
         }
 
         return [
+            'workspace' => $workspace,
             'editable' => $this->authorization->isGranted(['home', 'edit'], $workspace),
             'context' => [
                 'type' => Widget::CONTEXT_WORKSPACE,
@@ -114,9 +115,10 @@ class HomeController extends Controller
                 [
                     'id' => 'id1',
                     'type' => 'resource-list',
-                    'name' => 'My awesome widget 1',
+                    'name' => 'Choisissez votre module de formation',
                     'parameters' => [
                         'display' => 'tiles',
+                        'availableDisplays' => ['tiles'],
                         'filterable' => false,
                         'sortable' => false,
                         'paginated' => false

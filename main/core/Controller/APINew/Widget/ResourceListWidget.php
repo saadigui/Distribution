@@ -53,6 +53,7 @@ class ResourceListWidget
     {
         // limits the search to the current workspace
         $options = $request->query->all();
+        $options['hiddenFilters']['hidden'] = false;
         $options['hiddenFilters']['workspace'] = $workspace->getId();
 
         if (!empty($parent)) {
@@ -64,7 +65,11 @@ class ResourceListWidget
             $options['hiddenFilters']['parent'] = !empty($parentNode) ? $parentNode->getId() : null;
         } else {
             // grab workspace root directory content
-            $options['hiddenFilters']['parent'] = null;
+            $workspaceRoot = $this->om
+                ->getRepository('ClarolineCoreBundle:Resource\ResourceNode')
+                ->findOneBy(['parent' => null, 'workspace' => $workspace]);
+
+            $options['hiddenFilters']['parent'] = $workspaceRoot->getId();
         }
 
         return new JsonResponse(
@@ -88,6 +93,7 @@ class ResourceListWidget
     public function listDesktopAction(Request $request, $parent = null)
     {
         $options = $request->query->all();
+        $options['hiddenFilters']['hidden'] = false;
 
         if (!empty($parent)) {
             // grab directory content

@@ -1,4 +1,23 @@
-{% extends 'ClarolineCoreBundle:Desktop:layout.html.twig' %}
+{% import 'ClarolineCoreBundle::macros.html.twig' as macros %}
+
+{% if 'desktop' == context.type %}
+    {% set layout = 'ClarolineCoreBundle:Desktop:layout.html.twig' %}
+    {% set breadcrumb = macros.breadcrumbs([{
+        'name': 'desktop'|trans({}, 'platform'),
+        'href': path('claro_desktop_open')
+    }, {
+        'name': 'home'|trans({}, 'tools'),
+        'href': ''
+    }]) %}
+{% else %}
+    {% set layout = 'ClarolineCoreBundle:Workspace:layout.html.twig' %}
+    {% set breadcrumb = macros.workspaceBreadcrumbs(workspace, [{
+        'name': 'home'|trans({}, 'tools'),
+        'href': ''
+    }]) %}
+{% endif %}
+
+{% extends layout %}
 
 {% block stylesheets %}
     {{ parent() }}
@@ -13,15 +32,7 @@
 
 {# Override breadcrumbs #}
 {% block breadcrumb %}
-    {{
-        macros.breadcrumbs([{
-            'name': 'desktop'|trans({}, 'platform'),
-            'href': path('claro_desktop_open')
-        }, {
-            'name': 'home'|trans({}, 'tools'),
-            'href': ''
-        }])
-    }}
+    {{ breadcrumb }}
 {% endblock %}
 
 {# Content of the Page #}
