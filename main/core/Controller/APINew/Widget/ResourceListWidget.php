@@ -57,7 +57,7 @@ class ResourceListWidget
         $options['hiddenFilters']['workspace'] = $workspace->getId();
 
         // FIXME : make me an option of the widget
-        $options['sortBy'] = '-name';
+        $options['sortBy'] = 'name';
 
         if (!empty($parent)) {
             // grab directory content
@@ -99,7 +99,7 @@ class ResourceListWidget
         $options['hiddenFilters']['hidden'] = false;
 
         // FIXME : make me an option of the widget
-        $options['sortBy'] = '-name';
+        $options['sortBy'] = 'name';
 
         if (!empty($parent)) {
             // grab directory content
