@@ -56,6 +56,9 @@ class ResourceListWidget
         $options['hiddenFilters']['hidden'] = false;
         $options['hiddenFilters']['workspace'] = $workspace->getId();
 
+        // FIXME : make me an option of the widget
+        $options['sortBy'] = '-name';
+
         if (!empty($parent)) {
             // grab directory content
             $parentNode = $this->om
@@ -94,6 +97,9 @@ class ResourceListWidget
     {
         $options = $request->query->all();
         $options['hiddenFilters']['hidden'] = false;
+
+        // FIXME : make me an option of the widget
+        $options['sortBy'] = '-name';
 
         if (!empty($parent)) {
             // grab directory content
