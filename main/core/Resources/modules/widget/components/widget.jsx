@@ -13,7 +13,7 @@ import {getWidget} from '#/main/core/widget/types'
  * @constructor
  */
 const Widget = props =>
-  <section className="widget">
+  <section className={`widget ${props.instance.type}-widget`}>
     {props.instance.name &&
       <h2 className="h-first widget-title">{props.instance.name}</h2>
     }
