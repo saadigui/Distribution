@@ -84,6 +84,7 @@
 }
 
 .data-grid-item {
+    z-index: 1;
     display: flex;
     position: relative; // constrain selection checkbox and actions btn
     width: 100%; // fill container
@@ -193,7 +194,7 @@
         line-height: @line-height-base;
         text-align: justify;
         padding: 0 @data-card-padding;
-        margin: 0 @data-card-padding @data-card-padding;
+        // margin: 0 @data-card-padding @data-card-padding; // I don't understand I've put his
         max-height: @line-height-base * 5em;
         overflow: hidden;
     }
@@ -208,12 +209,17 @@
     }
 
     &:hover {
+        z-index: 2;
         color: @data-card-active-color;
         background-color: @data-card-active-bg;
         .box-shadow(@data-card-active-box-shadow);
 
         .item-header {
             background: @data-card-active-header-bg;
+        }
+
+        .item-content {
+            color: @data-card-active-color;
         }
     }
 
