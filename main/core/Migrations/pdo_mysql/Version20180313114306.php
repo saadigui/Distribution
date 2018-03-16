@@ -15,6 +15,7 @@ class Version20180313114306 extends AbstractMigration
     public function up(Schema $schema)
     {
         // updates widget configuration
+        // FIXME : CHANGE plugin_id plugin_id INT NOT NULL breakx update (because of foreign key)
         $this->addSql("
             ALTER TABLE claro_widget 
             ADD class VARCHAR(255) DEFAULT NULL, 

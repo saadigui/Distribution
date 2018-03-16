@@ -91,6 +91,7 @@
     border: 1px solid @data-card-border;
     color: @data-card-color;
     background: @data-card-bg;
+    font-size: @data-card-font;
 
     .border-radius(@data-card-border-radius);
     .box-shadow(@data-card-box-shadow);
@@ -150,6 +151,8 @@
         position: relative; // constrain flags
         text-align: center;
         background: @data-card-header-bg;
+
+        .border-radius(@data-card-border-radius @data-card-border-radius 0 0);
     }
 
     .item-flags {
@@ -167,12 +170,14 @@
         color: @data-card-color; // reset color when card is clickable (uses a <a> tag)
         display: flex;
         flex-direction: column;
+
+        .border-radius(0 0 @data-card-border-radius @data-card-border-radius);
     }
 
     .item-title {
         margin: @data-card-padding;
         padding: 0;
-        font-size: @font-size-base;
+        font-size: @data-card-title-font;
         font-weight: bold;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -184,7 +189,7 @@
     }
 
     .item-description {
-        font-size: @font-size-small;
+        font-size: @data-card-content-font;
         line-height: @line-height-base;
         text-align: justify;
         padding: 0 @data-card-padding;
@@ -195,7 +200,7 @@
 
     .item-footer {
         margin-top: auto; // ensure footer is always at the bottom
-        font-size: @font-size-small;
+        font-size: @data-card-content-font;
         text-align: right;
         padding: 0 @data-card-padding @data-card-padding;
         color: @data-card-color-muted;
@@ -289,7 +294,7 @@
         .grid-item-vertical-variant();
 
         .item-title {
-            font-size: 16px; // increase size todo should be a var
+            font-size: @data-card-title-lg-font;
         }
     }
 }
@@ -320,7 +325,7 @@
         .grid-item-horizontal-variant();
 
         .item-title {
-            font-size: 16px; // increase size todo should be a var
+            font-size: @data-card-title-lg-font;
         }
     }
 }

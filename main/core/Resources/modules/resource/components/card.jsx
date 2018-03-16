@@ -10,7 +10,7 @@ const ResourceCard = (row) => ({
   poster: row.thumbnail ? asset(row.thumbnail) : null, // todo generate and use thumbnail
   //icon: <img className="resource-icon" src={asset(row.meta.icon)} />,
   title: row.name,
-  subtitle: trans(row.meta.type, {}, 'resource'),
+  //subtitle: trans(row.meta.type, {}, 'resource'),
   /*flags: [
     ['fa fa-fw fa-eye', trans('resource_views', {}, 'resource'), row.meta.views],
     row.social && ['fa fa-fw fa-thumbs-up', trans('resource_likes', {}, 'resource'), row.social.likes]
