@@ -178,18 +178,12 @@ class WorkspaceController extends AbstractCrudController
     }
 
     /**
-     * @Route(
-     *    "/workspaces/delete",
-     *    name="apiv2_workspace_delete_bulk_override"
-     * )
-     * @Method("DELETE")
-     *
      * @param Request $request
      * @param string  $class
      *
      * @return JsonResponse
      */
-    public function deleBulkAction(Request $request)
+    public function deleteBulkAction(Request $request, $class)
     {
         $workspaces = parent::decodeIdsString($request, 'Claroline\CoreBundle\Entity\Workspace\Workspace');
         $errors = [];
@@ -206,7 +200,9 @@ class WorkspaceController extends AbstractCrudController
             }
         }
         if (empty($errors)) {
-            return parent::deleteBulkAction($request, 'Claroline\CoreBundle\Entity\Workspace\Workspace');
+            parent::deleteBulkAction($request, 'Claroline\CoreBundle\Entity\Workspace\Workspace');
+
+            return new JsonResponse('success', 200);
         } else {
             $validIds = [];
             $ids = $request->query->get('ids');
@@ -245,6 +241,25 @@ class WorkspaceController extends AbstractCrudController
             'Claroline\CoreBundle\Entity\User',
             ['hiddenFilters' => ['role' => $role->getUuid()]],
             [Options::IS_RECURSIVE]
+        ));
+    }
+
+    /**
+     * @Route(
+     *    "/list/registerable",
+     *    name="apiv2_workspace_list_registerable"
+     * )
+     * @Method("GET")
+     *
+     * @param Workspace $workspace
+     *
+     * @return JsonResponse
+     */
+    public function listRegisterableAction()
+    {
+        return new JsonResponse($this->finder->search(
+            'Claroline\CoreBundle\Entity\Workspace\Workspace',
+            ['hiddenFilters' => ['displayable' => true, 'selfRegistration' => true]]
         ));
     }
 }

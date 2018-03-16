@@ -12,6 +12,7 @@
 namespace Claroline\CoreBundle\Security\Voter;
 
 use Claroline\AppBundle\Security\ObjectCollection;
+use Claroline\CoreBundle\Entity\User;
 use Claroline\CoreBundle\Entity\Workspace\Workspace;
 use Claroline\CoreBundle\Security\AbstractVoter;
 use Claroline\CoreBundle\Security\PlatformRoles;
@@ -27,7 +28,7 @@ class WorkspaceVoter extends AbstractVoter
 {
     public function checkPermission(TokenInterface $token, $object, array $attributes, array $options)
     {
-        if ($object->getCreator() === $token->getUser()) {
+        if ($object->getCreator() === $token->getUser() || $this->isWorkspaceManaged($token, $object)) {
             return VoterInterface::ACCESS_GRANTED;
         }
 
@@ -73,34 +74,28 @@ class WorkspaceVoter extends AbstractVoter
              VoterInterface::ACCESS_DENIED;
     }
 
-    private function checkEdit($token, $workspaces)
+    private function checkEdit($token, Workspace $workspace)
     {
-        foreach ($workspaces as $workspace) {
-            if (!$this->isWorkspaceManaged($token, $workspace)) {
-                return VoterInterface::ACCESS_DENIED;
-            }
+        if (!$this->isWorkspaceManaged($token, $workspace)) {
+            return VoterInterface::ACCESS_DENIED;
         }
 
         return VoterInterface::ACCESS_GRANTED;
     }
 
-    private function checkDelete($token, $workspaces)
+    private function checkDelete($token, Workspace $workspace)
     {
-        foreach ($workspaces as $workspace) {
-            if (!$this->isWorkspaceManaged($token, $workspace)) {
-                return VoterInterface::ACCESS_DENIED;
-            }
+        if (!$this->isWorkspaceManaged($token, $workspace)) {
+            return VoterInterface::ACCESS_DENIED;
         }
 
         return VoterInterface::ACCESS_GRANTED;
     }
 
-    private function checkView($token, $workspaces)
+    private function checkView($token, Workspace $workspace)
     {
-        foreach ($workspaces as $workspace) {
-            if (!$this->isWorkspaceManaged($token, $workspace)) {
-                return VoterInterface::ACCESS_DENIED;
-            }
+        if (!$this->isWorkspaceManaged($token, $workspace)) {
+            return VoterInterface::ACCESS_DENIED;
         }
 
         return VoterInterface::ACCESS_GRANTED;
@@ -134,6 +129,10 @@ class WorkspaceVoter extends AbstractVoter
 
     private function isWorkspaceManaged(TokenInterface $token, Workspace $workspace)
     {
+        if (!$token->getUser() instanceof User) {
+            return false;
+        }
+
         $adminOrganizations = $token->getUser()->getAdministratedOrganizations();
         $workspaceOrganizations = $workspace->getOrganizations();
 
