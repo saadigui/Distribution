@@ -2,9 +2,11 @@
 
 namespace Innova\PathBundle\Installation\Updater;
 
-use Claroline\CoreBundle\Persistence\ObjectManager;
+use Claroline\AppBundle\Persistence\ObjectManager;
+use Claroline\CoreBundle\Entity\Resource\Activity;
 use Claroline\InstallationBundle\Updater\Updater;
 use Innova\PathBundle\Entity\SecondaryResource;
+use Innova\PathBundle\Entity\Step;
 
 class Updater110200 extends Updater
 {
@@ -30,7 +32,9 @@ class Updater110200 extends Updater
         $om->startFlushSuite();
         $i = 0;
 
+        /** @var Step $step */
         foreach ($steps as $step) {
+            /** @var Activity $activity */
             $activity = $step->getActivity();
 
             if (!empty($activity)) {
@@ -45,7 +49,7 @@ class Updater110200 extends Updater
                 if (!empty($parameters)) {
                     $order = 0;
 
-                    foreach ($parameters->getSecondaryResources as $resource) {
+                    foreach ($parameters->getSecondaryResources() as $resource) {
                         $secondaryResource = new SecondaryResource();
                         $secondaryResource->setResource($resource);
                         $secondaryResource->setOrder($order);
