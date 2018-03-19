@@ -36,7 +36,7 @@ class LoggerController
      *
      * @return Response
      */
-    public function transfer($name)
+    public function getAction($name)
     {
         return new Response(file_get_contents($this->logDir.'/'.$name.'.log'));
     }

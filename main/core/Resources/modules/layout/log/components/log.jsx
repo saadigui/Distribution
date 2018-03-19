@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {Component} from 'react'
 import {PropTypes as T} from 'prop-types'
 import classes from 'classnames'
 import Alert from 'react-bootstrap/lib/Alert'
@@ -6,24 +6,32 @@ import Modal from 'react-bootstrap/lib/Modal'
 
 import {trans} from '#/main/core/translation'
 import {BaseModal} from '#/main/core/layout/modal/components/base.jsx'
+import {actions} from '#/main/core/layout/log/actions'
 
-const LogModal = props => {
-  (
-    <BaseModal {...props}>
-      <Modal.Body>
-        <pre id="log-content">
-          {props.content}
-        </pre>
-      </Modal.Body>
-      <button
-        className="modal-btn btn btn-primary"
-        onClick={() => props.fadeModal()}
-      >
-        {trans('Ok')}
-      </button>
-    </BaseModal>
-  )
+class LogModal extends Component {
+  render() {
+    return (
+      <BaseModal {...this.props}>
+        <Modal.Body>
+          <pre id="log-content">
+            {this.props.content}
+          </pre>
+        </Modal.Body>
+        <button
+          className="modal-btn btn btn-primary"
+          onClick={() => this.props.fadeModal()}
+        >
+          {trans('Ok')}
+        </button>
+      </BaseModal>
+    )
+  }
+
+  componentDidMount() {
+    actions.load(this.props.file)
+  }
 }
+
 
 LogModal.propTypes = {
   message: T.string.isRequired,
