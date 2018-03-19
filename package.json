@@ -82,6 +82,7 @@
     "svg4everybody": "^2.1.2",
     "tablesorter": "git://github.com/christianbach/tablesorter.git#774576308e",
     "tinycolor2": "^1.4.1",
+    "tinymce": "^4.7.6",
     "tinymce-codemirror": "git://github.com/christiaan/tinymce-codemirror.git#20c1bbe708",
     "toastr": "2.1.2",
     "typeahead.js": "0.11.1",
