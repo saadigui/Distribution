@@ -2,7 +2,6 @@ import React from 'react'
 import invariant from 'invariant'
 
 import {MessageModal} from './components/message.jsx'
-import {LogModal} from './components/log.jsx'
 import {ConfirmModal} from './components/confirm.jsx'
 import {DeleteConfirmModal} from './components/delete-confirm.jsx'
 import {UrlModal} from './components/url.jsx'
@@ -17,7 +16,6 @@ export const MODAL_GENERIC_TYPE_PICKER = 'MODAL_GENERIC_TYPE_PICKER'
 export const MODAL_URL = 'MODAL_URL' // only for use with old Twig modals, will be deleted
 export const MODAL_USER_PICKER = 'MODAL_USER_PICKER'
 export const MODAL_IFRAME = 'MODAL_IFRAME'
-export const MODAL_LOG = 'MODAL_LOG'
 
 const modals = {
   [MODAL_MESSAGE]: MessageModal,
@@ -26,8 +24,7 @@ const modals = {
   [MODAL_URL]: UrlModal,
   [MODAL_USER_PICKER]: UserPickerModal, // todo : register it only in tools using it (users with no edit rights don't need it)
   [MODAL_GENERIC_TYPE_PICKER]: GenericTypePicker, // same here
-  [MODAL_IFRAME]: IframeModal,
-  [MODAL_LOG]: LogModal
+  [MODAL_IFRAME]: IframeModal
 }
 
 function registerModal(type, component) {

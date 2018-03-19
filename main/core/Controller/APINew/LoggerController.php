@@ -31,7 +31,7 @@ class LoggerController
     }
 
     /**
-     * @EXT\Route("/transfer/{name}", name="apiv2_logger_transfer_get")
+     * @EXT\Route("/{name}", name="apiv2_logger_get")
      * @EXT\Method("GET")
      *
      * @return Response
