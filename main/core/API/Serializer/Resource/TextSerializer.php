@@ -59,6 +59,7 @@ class TextSerializer
             ],
         ];
     }
+
     /**
      * @param array $data
      * @param Text  $text

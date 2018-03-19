@@ -19,7 +19,6 @@ use Claroline\CoreBundle\Event\CreateResourceEvent;
 use Claroline\CoreBundle\Event\DeleteResourceEvent;
 use Claroline\CoreBundle\Event\OpenResourceEvent;
 use Claroline\CoreBundle\Form\TextType;
-use Claroline\CoreBundle\Library\Security\Collection\ResourceCollection;
 use Claroline\ScormBundle\Event\ExportScormResourceEvent;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;

@@ -15,23 +15,43 @@ use Claroline\AppBundle\Persistence\ObjectManager;
 use Claroline\CoreBundle\Entity\Resource\Revision;
 use Claroline\CoreBundle\Entity\Resource\Text;
 use Claroline\CoreBundle\Entity\User;
+use Claroline\CoreBundle\Event\Log\LogEditResourceTextEvent;
 use JMS\DiExtraBundle\Annotation as DI;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @DI\Service("claroline.manager.text_manager")
  */
 class TextManager
 {
+    /** @var EventDispatcherInterface */
+    private $eventDispatcher;
+
+    /** @var ObjectManager */
     private $om;
+
+    /** @var UserManager */
+    private $userManager;
 
     /**
      * @DI\InjectParams({
-     *       "om" = @DI\Inject("claroline.persistence.object_manager")
+     *     "eventDispatcher" = @DI\Inject("event_dispatcher"),
+     *     "om"              = @DI\Inject("claroline.persistence.object_manager"),
+     *     "userManager"     = @DI\Inject("claroline.manager.user_manager")
      * })
+     *
+     * @param EventDispatcherInterface $eventDispatcher
+     * @param ObjectManager            $om
+     * @param UserManager              $userManager
      */
-    public function __construct(ObjectManager $om)
-    {
+    public function __construct(
+        EventDispatcherInterface $eventDispatcher,
+        ObjectManager $om,
+        UserManager $userManager
+    ) {
+        $this->eventDispatcher = $eventDispatcher;
         $this->om = $om;
+        $this->userManager = $userManager;
     }
 
     public function create($content, $title, User $user = null)
@@ -68,19 +88,14 @@ class TextManager
         $text->setVersion($version);
         $this->om->persist($revision);
         $this->om->persist($text);
-//        $workspace = $old->getResourceNode()->getWorkspace();
-//        $usersToNotify = $workspace ?
-//            $this->container->get('claroline.manager.user_manager')
-//                ->getUsersByWorkspaces(array($workspace), null, null, false) :
-//            array();
-//
-//        $this->get('claroline.event.event_dispatcher')
-//            ->dispatch(
-//                'log',
-//                'Log\LogEditResourceText',
-//                array('node' => $old->getResourceNode(), 'usersToNotify' => $usersToNotify)
-//            );
         $this->om->flush();
+
+        $workspace = $text->getResourceNode()->getWorkspace();
+        $usersToNotify = $workspace ?
+            $this->userManager->getUsersByWorkspaces([$workspace], null, null, false) :
+            [];
+        $event = new LogEditResourceTextEvent($text->getResourceNode(), $usersToNotify);
+        $this->eventDispatcher->dispatch('log', $event);
 
         return $revision;
     }

@@ -7,7 +7,7 @@ import {select as formSelect} from '#/main/core/data/form/selectors'
 import {Text as TextTypes} from '#/main/core/resources/text/prop-types'
 import {FormContainer} from '#/main/core/data/form/containers/form.jsx'
 
-const EditorComponent = props =>
+const EditorComponent = () =>
   <section className="resource-section">
     <h2 className="h-first">{trans('configuration')}</h2>
     <FormContainer
