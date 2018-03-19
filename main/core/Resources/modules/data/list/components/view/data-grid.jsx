@@ -29,9 +29,7 @@ const DataGridItem = props =>
     }}>
       <span className="item-icon-container">
         {typeof props.data.icon === 'string' ?
-          <span className={props.data.icon} />
-         :
-          props.data.icon
+          <span className={props.data.icon} />: props.data.icon
         }
       </span>
 
@@ -120,7 +118,10 @@ const DataGridSort = props =>
     {t('list_sort_by')}
     <DropdownButton
       id="data-grid-sort-menu"
-      title={props.current.property ? getPropDefinition(props.current.property, props.available).label : t('none')}
+      title={props.current.property && getPropDefinition(props.current.property, props.available) ?
+        getPropDefinition(props.current.property, props.available).label :
+        t('none')
+      }
       bsStyle="link"
       noCaret={true}
       pullRight={true}
@@ -171,7 +172,9 @@ const DataGrid = props =>
           label={t('list_select_all')}
           labelChecked={t('list_deselect_all')}
           checked={0 < props.selection.current.length}
-          onChange={() => props.selection.toggleAll(props.data)}
+          onChange={(val) => {
+            val.target.checked ? props.selection.toggleAll(props.data): props.selection.toggleAll([])
+          }}
         />
       }
 
@@ -202,7 +205,11 @@ const DataGrid = props =>
             primaryAction={props.primaryAction}
             actions={getRowActions(props.actions)}
             selected={isRowSelected(row, props.selection ? props.selection.current : [])}
-            onSelect={props.selection ? () => props.selection.toggle(row) : null}
+            onSelect={
+              props.selection ? () => {
+                props.selection.toggle(row, !isRowSelected(row, props.selection ? props.selection.current : []))
+              }: null
+            }
           />
         </li>
       )}

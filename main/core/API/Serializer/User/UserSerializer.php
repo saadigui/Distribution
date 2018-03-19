@@ -2,9 +2,10 @@
 
 namespace Claroline\CoreBundle\API\Serializer\User;
 
-use Claroline\CoreBundle\API\Options;
+use Claroline\AppBundle\API\Options;
+use Claroline\AppBundle\API\Serializer\SerializerTrait;
+use Claroline\AppBundle\Persistence\ObjectManager;
 use Claroline\CoreBundle\API\Serializer\File\PublicFileSerializer;
-use Claroline\CoreBundle\API\Serializer\SerializerTrait;
 use Claroline\CoreBundle\Entity\Facet\FieldFacet;
 use Claroline\CoreBundle\Entity\Facet\FieldFacetValue;
 use Claroline\CoreBundle\Entity\File\PublicFile;
@@ -14,7 +15,6 @@ use Claroline\CoreBundle\Entity\User;
 use Claroline\CoreBundle\Library\Configuration\PlatformConfigurationHandler;
 use Claroline\CoreBundle\Library\Normalizer\DateRangeNormalizer;
 use Claroline\CoreBundle\Manager\FacetManager;
-use Claroline\CoreBundle\Persistence\ObjectManager;
 use JMS\DiExtraBundle\Annotation as DI;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -158,6 +158,7 @@ class UserSerializer
                         'type' => $role->getType(),
                         'name' => $role->getName(),
                         'translationKey' => $role->getTranslationKey(),
+                        'workspace' => $role->getWorkspace() ? ['id' => $role->getWorkspace()->getUuid()] : null,
                     ];
                 }, $user->getEntityRoles()),
                 'groups' => array_map(function (Group $group) {
@@ -168,9 +169,15 @@ class UserSerializer
                 }, $user->getGroups()->toArray()),
             ]);
 
+            $serializer = $this->container->get('claroline.api.serializer');
+
             if ($user->getMainOrganization()) {
-                $serialized['mainOrganization'] = $this->container->get('claroline.api.serializer')->serialize($user->getMainOrganization());
+                $serialized['mainOrganization'] = $serializer->serialize($user->getMainOrganization());
             }
+
+            $serialized['administratedOrganizations'] = array_map(function ($organization) use ($serializer) {
+                return $serializer->serialize($organization);
+            }, $user->getAdministratedOrganizations()->toArray());
         }
 
         if (in_array(Options::SERIALIZE_FACET, $options)) {
@@ -210,13 +217,13 @@ class UserSerializer
                         $publicUser['description'] = $user->getDescription();
                         break;
                     case 'email':
-                        $publicUser['mail'] = $user->getMail();
+                        $publicUser['mail'] = $user->getEmail();
                         break;
                     case 'phone':
                         $publicUser['phone'] = $user->getPhone();
                         break;
                     case 'sendMail':
-                        $publicUser['mail'] = $user->getMail();
+                        $publicUser['mail'] = $user->getEmail();
                         $publicUser['allowSendMail'] = true;
                         break;
                     case 'sendMessage':
@@ -388,6 +395,18 @@ class UserSerializer
                 'Claroline\CoreBundle\Entity\Organization\Organization',
                 $data['mainOrganization']
             ));
+        }
+
+        //only add role here. If we want to remove them, use the crud remove method instead
+        //it's usefull if we want to create a user with a list of roles
+        if (isset($data['roles'])) {
+            foreach ($data['roles'] as $role) {
+                $role = $this->container->get('claroline.api.serializer')
+                    ->deserialize('Claroline\CoreBundle\Entity\Role', $role);
+                if ($role && $role->getId()) {
+                    $user->addRole($role);
+                }
+            }
         }
 
         $fieldFacets = $this->om

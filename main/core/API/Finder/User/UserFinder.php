@@ -11,7 +11,7 @@
 
 namespace Claroline\CoreBundle\API\Finder\User;
 
-use Claroline\CoreBundle\API\FinderInterface;
+use Claroline\AppBundle\API\FinderInterface;
 use Claroline\CoreBundle\Entity\Organization\Organization;
 use Claroline\CoreBundle\Entity\User;
 use Claroline\CoreBundle\Entity\Workspace\Workspace;
@@ -119,6 +119,17 @@ class UserFinder implements FinderInterface
                     $qb->setParameter('administratedOrganizations', is_array($filterValue) ? $filterValue : [$filterValue]);
                     break;
                 case 'contactable':
+                case 'workspace':
+                    $qb->leftJoin('obj.roles', 'wsuroles');
+                    $qb->leftJoin('wsuroles.workspace', 'rws');
+                    $qb->leftJoin('obj.groups', 'wsugrps');
+                    $qb->leftJoin('wsugrps.roles', 'guroles');
+                    $qb->leftJoin('guroles.workspace', 'grws');
+                    $qb->andWhere($qb->expr()->orX(
+                        $qb->expr()->eq('rws.uuid', ':workspaceId'),
+                        $qb->expr()->eq('grws.uuid', ':workspaceId')
+                    ));
+                    $qb->setParameter('workspaceId', $filterValue);
                     break;
                 case 'blacklist':
                     $qb->andWhere("obj.uuid NOT IN (:{$filterName})");

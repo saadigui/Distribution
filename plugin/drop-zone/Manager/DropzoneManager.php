@@ -11,14 +11,15 @@
 
 namespace Claroline\DropZoneBundle\Manager;
 
-use Claroline\CoreBundle\API\Crud;
+use Claroline\AppBundle\API\Crud;
+use Claroline\AppBundle\Persistence\ObjectManager;
 use Claroline\CoreBundle\Entity\Resource\AbstractResourceEvaluation;
 use Claroline\CoreBundle\Entity\Resource\ResourceUserEvaluation;
 use Claroline\CoreBundle\Entity\User;
 use Claroline\CoreBundle\Library\Configuration\PlatformConfigurationHandler;
 use Claroline\CoreBundle\Manager\Resource\ResourceEvaluationManager;
-use Claroline\CoreBundle\Persistence\ObjectManager;
 use Claroline\DropZoneBundle\Entity\Correction;
+use Claroline\DropZoneBundle\Entity\Criterion;
 use Claroline\DropZoneBundle\Entity\Document;
 use Claroline\DropZoneBundle\Entity\Drop;
 use Claroline\DropZoneBundle\Entity\Dropzone;
@@ -379,10 +380,10 @@ class DropzoneManager
     {
         $teamId = null;
 
-        if ($dropzone->getDropType() === Dropzone::DROP_TYPE_TEAM) {
+        if (Dropzone::DROP_TYPE_TEAM === $dropzone->getDropType()) {
             $teamDrops = $this->getTeamDrops($dropzone, $user);
 
-            if (count($teamDrops) === 1) {
+            if (1 === count($teamDrops)) {
                 $teamId = $teamDrops[0]->getTeamId();
             }
         }
@@ -460,7 +461,7 @@ class DropzoneManager
      */
     public function deleteDocument(Document $document)
     {
-        if ($document->getType() === Document::DOCUMENT_TYPE_FILE) {
+        if (Document::DOCUMENT_TYPE_FILE === $document->getType()) {
             $data = $document->getFile();
 
             if (isset($data['url'])) {
@@ -669,7 +670,7 @@ class DropzoneManager
             case Dropzone::DROP_TYPE_TEAM:
                 $teamDrops = $this->getTeamDrops($dropzone, $user);
 
-                if (count($teamDrops) === 1) {
+                if (1 === count($teamDrops)) {
                     $users = $teamDrops[0]->getUsers();
                 }
                 break;
@@ -1030,7 +1031,7 @@ class DropzoneManager
      */
     public function executeTool(DropzoneTool $tool, Document $document)
     {
-        if ($tool->getType() === DropzoneTool::COMPILATIO && $document->getType() === Document::DOCUMENT_TYPE_FILE) {
+        if (DropzoneTool::COMPILATIO === $tool->getType() && Document::DOCUMENT_TYPE_FILE === $document->getType()) {
             $toolDocument = $this->dropzoneToolDocumentRepo->findOneBy(['tool' => $tool, 'document' => $document]);
             $toolData = $tool->getData();
             $compilatio = new \SoapClient($toolData['url']);
@@ -1130,7 +1131,7 @@ class DropzoneManager
         $dropzone = $drop->getDropzone();
         $users = [$drop->getUser()];
 
-        if ($dropzone->getDropType() === Dropzone::DROP_TYPE_TEAM) {
+        if (Dropzone::DROP_TYPE_TEAM === $dropzone->getDropType()) {
             $users = $drop->getUsers();
         }
         $computeStatus = $drop->isFinished() && (!$dropzone->isPeerReview() || $drop->isUnlockedDrop());
@@ -1262,7 +1263,7 @@ class DropzoneManager
                 strtolower($drop->getTeamName()) :
                 strtolower($drop->getUser()->getFirstName().' '.$drop->getUser()->getLastName().' - '.$drop->getUser()->getUsername());
 
-            if ($date !== '') {
+            if ('' !== $date) {
                 $dirName .= ' '.$date;
             }
 
@@ -1301,6 +1302,57 @@ class DropzoneManager
         file_put_contents($this->archiveDir, $pathArch."\n", FILE_APPEND);
 
         return $pathArch;
+    }
+
+    /**
+     * Copy a Dropzone resource.
+     *
+     * @param Dropzone $dropzone
+     *
+     * @return Dropzone
+     */
+    public function copyDropzone(Dropzone $dropzone)
+    {
+        $newDropzone = new Dropzone();
+        $newDropzone->setName($dropzone->getName());
+        $newDropzone->setEditionState($dropzone->getEditionState());
+        $newDropzone->setInstruction($dropzone->getInstruction());
+        $newDropzone->setCorrectionInstruction($dropzone->getCorrectionInstruction());
+        $newDropzone->setSuccessMessage($dropzone->getSuccessMessage());
+        $newDropzone->setFailMessage($dropzone->getFailMessage());
+        $newDropzone->setAllowedDocuments($dropzone->getAllowedDocuments());
+        $newDropzone->setPeerReview($dropzone->isPeerReview());
+        $newDropzone->setExpectedCorrectionTotal($dropzone->getExpectedCorrectionTotal());
+        $newDropzone->setDisplayNotationToLearners($dropzone->getDisplayNotationToLearners());
+        $newDropzone->setDisplayNotationMessageToLearners($dropzone->getDisplayNotationMessageToLearners());
+        $newDropzone->setScoreToPass($dropzone->getScoreToPass());
+        $newDropzone->setScoreMax($dropzone->getScoreMax());
+        $newDropzone->setDropType($dropzone->getDropType());
+        $newDropzone->setManualPlanning($dropzone->getManualPlanning());
+        $newDropzone->setManualState($dropzone->getManualState());
+        $newDropzone->setDropStartDate($dropzone->getDropStartDate());
+        $newDropzone->setDropEndDate($dropzone->getDropEndDate());
+        $newDropzone->setReviewStartDate($dropzone->getReviewStartDate());
+        $newDropzone->setReviewEndDate($dropzone->getReviewEndDate());
+        $newDropzone->setCommentInCorrectionEnabled($dropzone->isCommentInCorrectionEnabled());
+        $newDropzone->setCommentInCorrectionForced($dropzone->isCommentInCorrectionForced());
+        $newDropzone->setDisplayCorrectionsToLearners($dropzone->getDisplayCorrectionsToLearners());
+        $newDropzone->setCorrectionDenialEnabled($dropzone->isCorrectionDenialEnabled());
+        $newDropzone->setCriteriaEnabled($dropzone->isCriteriaEnabled());
+        $newDropzone->setCriteriaTotal($dropzone->getCriteriaTotal());
+        $newDropzone->setAutoCloseDropsAtDropEndDate($dropzone->getAutoCloseDropsAtDropEndDate());
+        $newDropzone->setAutoCloseState($dropzone->getAutoCloseState());
+        $newDropzone->setDropClosed($dropzone->getDropClosed());
+        $newDropzone->setNotifyOnDrop($dropzone->getNotifyOnDrop());
+
+        foreach ($dropzone->getCriteria() as $criterion) {
+            $newCriterion = new Criterion();
+            $newCriterion->setDropzone($newDropzone);
+            $newCriterion->setInstruction($criterion->getInstruction());
+            $this->om->persist($newCriterion);
+        }
+
+        return $newDropzone;
     }
 
     private function getDropWithTheLeastCorrections(array $drops)

@@ -4,10 +4,8 @@
 
 {% set isRenderedInIframe = app.request.query.get('iframe') %}
 
-<html
-    lang="{{ app.request.locale|default('en') }}"
-    class="claroline-app-container {{ config.getParameter('theme') }}{% if isRenderedInIframe %} claroline-app-iframe{% endif %}"
->
+<html lang="{{ app.request.locale }}"
+      class="claroline-app-container {{ config.getParameter('theme') }}{% if isRenderedInIframe %} claroline-app-iframe{% endif %}">
     <head>
         {% set description = getContent('platformDescription') %}
         {% block meta %}

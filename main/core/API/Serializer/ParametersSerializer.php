@@ -2,8 +2,8 @@
 
 namespace Claroline\CoreBundle\API\Serializer;
 
-use Claroline\CoreBundle\API\FinderProvider;
-use Claroline\CoreBundle\API\SerializerProvider;
+use Claroline\AppBundle\API\FinderProvider;
+use Claroline\AppBundle\API\SerializerProvider;
 use Claroline\CoreBundle\Entity\Content;
 use Claroline\CoreBundle\Library\Configuration\PlatformConfiguration;
 use Claroline\CoreBundle\Library\Configuration\PlatformConfigurationHandler;
@@ -134,6 +134,8 @@ class ParametersSerializer
               'register_button_at_login' => $parameters['register_button_at_login'],
               'auto_logging' => $parameters['auto_logging_after_registration'],
               'validation' => $parameters['registration_mail_validation'],
+              'force_organization_creation' => $parameters['force_organization_creation'],
+              'allow_workspace' => $parameters['allow_workspace_at_registration'],
           ],
           'authentication' => [
             'redirect_after_login_option' => $parameters['redirect_after_login_option'],
@@ -411,6 +413,8 @@ class ParametersSerializer
             $this->buildParameter('registration.register_button_at_login', 'register_button_at_login', $parameters, $data);
             $this->buildParameter('registration.auto_logging', 'auto_logging_after_registration', $parameters, $data);
             $this->buildParameter('registration.validation', 'registration_mail_validation', $parameters, $data);
+            $this->buildParameter('registration.force_organization_creation', 'force_organization_creation', $parameters, $data);
+            $this->buildParameter('registration.allow_workspace', 'allow_workspace_at_registration', $parameters, $data);
         }
     }
 
@@ -421,7 +425,6 @@ class ParametersSerializer
             $this->buildParameter('authentication.redirect_after_login_url', 'redirect_after_login_url', $parameters, $data);
             $this->buildParameter('authentication.login_target_route', 'login_target_route', $parameters, $data);
             $this->buildParameter('authentication.direct_third_party', 'direct_third_party_authentication', $parameters, $data);
-            $this->buildParameter('authentication.force_organization_creation', 'force_organization_creation', $parameters, $data);
         }
     }
 

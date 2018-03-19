@@ -2,12 +2,12 @@
 
 namespace Claroline\CoreBundle\API\Serializer\User;
 
-use Claroline\CoreBundle\API\Options;
-use Claroline\CoreBundle\API\Serializer\SerializerTrait;
+use Claroline\AppBundle\API\Options;
+use Claroline\AppBundle\API\Serializer\SerializerTrait;
+use Claroline\AppBundle\Persistence\ObjectManager;
 use Claroline\CoreBundle\Entity\Organization\Location;
 use Claroline\CoreBundle\Entity\Organization\Organization;
 use Claroline\CoreBundle\Entity\User;
-use Claroline\CoreBundle\Persistence\ObjectManager;
 use JMS\DiExtraBundle\Annotation as DI;
 
 /**
@@ -50,6 +50,7 @@ class OrganizationSerializer
             'name' => $organization->getName(),
             'code' => $organization->getCode(),
             'email' => $organization->getEmail(),
+            'type' => $organization->getType(),
             'parent' => !empty($organization->getParent()) ? [
                 'id' => $organization->getParent()->getUuid(),
                 'name' => $organization->getParent()->getName(),

@@ -11,11 +11,10 @@
 
 namespace Claroline\CoreBundle\Manager;
 
+use Claroline\AppBundle\Event\StrictDispatcher;
+use Claroline\AppBundle\Persistence\ObjectManager;
 use Claroline\CoreBundle\Entity\Group;
-use Claroline\CoreBundle\Entity\Workspace\Workspace;
-use Claroline\CoreBundle\Event\StrictDispatcher;
 use Claroline\CoreBundle\Pager\PagerFactory;
-use Claroline\CoreBundle\Persistence\ObjectManager;
 use Claroline\CoreBundle\Repository\GroupRepository;
 use Claroline\CoreBundle\Repository\UserRepository;
 use JMS\DiExtraBundle\Annotation as DI;
@@ -205,49 +204,6 @@ class GroupManager
     }
 
     /**
-     * @param \Claroline\CoreBundle\Entity\Workspace\Workspace $workspace
-     * @param int                                              $page
-     * @param int                                              $max
-     *
-     * @return \PagerFanta\PagerFanta
-     */
-    public function getWorkspaceOutsiders(Workspace $workspace, $page, $max = 50)
-    {
-        $query = $this->groupRepo->findWorkspaceOutsiders($workspace, false);
-
-        return $this->pagerFactory->createPager($query, $page, $max);
-    }
-
-    /**
-     * @param \Claroline\CoreBundle\Entity\Workspace\Workspace $workspace
-     * @param string                                           $search
-     * @param int                                              $page
-     * @param int                                              $max
-     *
-     * @return \PagerFanta\PagerFanta
-     */
-    public function getWorkspaceOutsidersByName(Workspace $workspace, $search, $page, $max = 50)
-    {
-        $query = $this->groupRepo->findWorkspaceOutsidersByName($workspace, $search, false);
-
-        return $this->pagerFactory->createPager($query, $page, $max);
-    }
-
-    /**
-     * @param \Claroline\CoreBundle\Entity\Workspace\Workspace $workspace
-     * @param int                                              $page
-     * @param int                                              $max
-     *
-     * @return \PagerFanta\PagerFanta
-     */
-    public function getGroupsByWorkspace(Workspace $workspace, $page, $max = 50)
-    {
-        $query = $this->groupRepo->findByWorkspace($workspace, false);
-
-        return $this->pagerFactory->createPager($query, $page, $max);
-    }
-
-    /**
      * @param \Claroline\CoreBundle\Entity\Workspace\Workspace[] $workspaces
      *
      * @return Group[]
@@ -269,21 +225,6 @@ class GroupManager
             $workspaces,
             $search
         );
-    }
-
-    /**
-     * @param \Claroline\CoreBundle\Entity\Workspace\Workspace $workspace
-     * @param string                                           $search
-     * @param int                                              $page
-     * @param int                                              $max
-     *
-     * @return \PagerFanta\PagerFanta
-     */
-    public function getGroupsByWorkspaceAndName(Workspace $workspace, $search, $page, $max = 50)
-    {
-        $query = $this->groupRepo->findByWorkspaceAndName($workspace, $search, false);
-
-        return $this->pagerFactory->createPager($query, $page, $max);
     }
 
     /**
@@ -337,21 +278,6 @@ class GroupManager
     }
 
     /**
-     * @param \Claroline\CoreBundle\Entity\Role[]              $roles
-     * @param \Claroline\CoreBundle\Entity\Workspace\Workspace $workspace
-     * @param int                                              $page
-     * @param int                                              $max
-     *
-     * @return \PagerFanta\PagerFanta
-     */
-    public function getOutsidersByWorkspaceRoles(array $roles, Workspace $workspace, $page = 1, $max = 50)
-    {
-        $query = $this->groupRepo->findOutsidersByWorkspaceRoles($roles, $workspace, true);
-
-        return  $this->pagerFactory->createPager($query, $page, $max);
-    }
-
-    /**
      * @param \Claroline\CoreBundle\Entity\Role[] $roles
      * @param string                              $name
      * @param int                                 $page
@@ -363,27 +289,6 @@ class GroupManager
     public function getGroupsByRolesAndName(array $roles, $name, $page = 1, $max = 50, $orderedBy = 'id')
     {
         $query = $this->groupRepo->findByRolesAndName($roles, $name, true, $orderedBy);
-
-        return $this->pagerFactory->createPager($query, $page, $max);
-    }
-
-    /**
-     * @param \Claroline\CoreBundle\Entity\Role[]              $roles
-     * @param string                                           $name
-     * @param \Claroline\CoreBundle\Entity\Workspace\Workspace $workspace
-     * @param int                                              $page
-     * @param int                                              $max
-     *
-     * @return \PagerFanta\PagerFanta
-     */
-    public function getOutsidersByWorkspaceRolesAndName(
-        array $roles,
-        $name,
-        Workspace $workspace,
-        $page = 1,
-        $max = 50
-    ) {
-        $query = $this->groupRepo->findOutsidersByWorkspaceRolesAndName($roles, $name, $workspace, true);
 
         return $this->pagerFactory->createPager($query, $page, $max);
     }
@@ -423,11 +328,6 @@ class GroupManager
         return true;
     }
 
-    public function getGroupById($id)
-    {
-        return $this->groupRepo->findById($id);
-    }
-
     public function getGroupByName($name, $executeQuery = true)
     {
         return $this->groupRepo->findGroupByName($name, $executeQuery);
@@ -449,7 +349,7 @@ class GroupManager
         $scheduledForInsert = $this->om->getUnitOfWork()->getScheduledEntityInsertions();
 
         foreach ($scheduledForInsert as $entity) {
-            if (get_class($entity) === 'Claroline\CoreBundle\Entity\Group') {
+            if ('Claroline\CoreBundle\Entity\Group' === get_class($entity)) {
                 if ($entity->getName() === $name) {
                     return $entity;
                 }
@@ -470,6 +370,7 @@ class GroupManager
         $this->om->flush();
     }
 
+    //used in EmptyGroupCommand command: todo: remove it
     public function searchPartialList($searches, $page, $limit, $count = false, $exclude = false)
     {
         $baseFieldsName = Group::getSearchableFields();
@@ -480,7 +381,7 @@ class GroupManager
 
         //Admin can see everything, but the others... well they can only see their own organizations.
         //Cli always win aswell
-        if (php_sapi_name() !== 'cli' || $this->container->get('kernel')->getEnvironment() === 'test') {
+        if ('cli' !== php_sapi_name() || 'test' === $this->container->get('kernel')->getEnvironment()) {
             if (!$this->container->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
                 $currentUser = $this->container->get('security.token_storage')->getToken()->getUser();
                 $qb->join('g.organizations', 'go');
@@ -506,7 +407,7 @@ class GroupManager
 
         $query = $qb->getQuery();
 
-        if ($page !== null && $limit !== null && !$count) {
+        if (null !== $page && null !== $limit && !$count) {
             $query->setMaxResults($limit);
             $query->setFirstResult($page * $limit);
         }
@@ -550,6 +451,7 @@ class GroupManager
 
         return $content;
     }
+
     /**
      * @param int $page
      * @param int $max
@@ -562,6 +464,7 @@ class GroupManager
 
         return $this->pagerFactory->createPager($query, $page, $max);
     }
+
     /**
      * @param int    $page
      * @param string $search
@@ -574,27 +477,6 @@ class GroupManager
         $query = $this->groupRepo->findAllGroupsBySearch($search);
 
         return $this->pagerFactory->createPagerFromArray($query, $page, $max);
-    }
-    /**
-     * @param string[] $names
-     *
-     * @return Group[]
-     */
-    public function getGroupsByNames(array $names)
-    {
-        if (count($names) > 0) {
-            return $this->groupRepo->findGroupsByNames($names);
-        }
-
-        return [];
-    }
-
-    public function getAllGroupsWithoutPager(
-        $orderedBy = 'id',
-        $order = 'ASC',
-        $executeQuery = true
-    ) {
-        return $this->groupRepo->findAllGroups($orderedBy, $order, $executeQuery);
     }
 
     public function importMembers($data, $group)

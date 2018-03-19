@@ -37,7 +37,6 @@ use Claroline\CoreBundle\Manager\WorkspaceManager;
 use Claroline\CoreBundle\Manager\WorkspaceTagManager;
 use Claroline\CoreBundle\Manager\WorkspaceUserQueueManager;
 use JMS\DiExtraBundle\Annotation as DI;
-use JMS\SecurityExtraBundle\Annotation as SEC;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration as EXT;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Bundle\TwigBundle\TwigEngine;
@@ -218,6 +217,27 @@ class WorkspaceController extends Controller
     }
 
     /**
+     * @EXT\Template()
+     *
+     * Renders the registered workspace list for a user.
+     *
+     * @return Response
+     */
+    public function usersManagementAction(Workspace $workspace)
+    {
+        return [
+            'workspace' => $workspace,
+            'restrictions' => [
+                'hasUserManagementAccess' => $this->authorization->isGranted(
+                    'OPEN', $this->container->get('claroline.persistence.object_manager')
+                      ->getRepository('ClarolineCoreBundle:Tool\AdminTool')
+                      ->findOneByName('user_management')
+                ),
+            ],
+        ];
+    }
+
+    /**
      * @EXT\Route(
      *     "/user/picker",
      *     name="claro_workspace_by_user_picker",
@@ -232,7 +252,7 @@ class WorkspaceController extends Controller
     {
         $isGranted = $this->authorization->isGranted('ROLE_USER');
         $response = new JsonResponse('', 401);
-        if ($isGranted === true) {
+        if (true === $isGranted) {
             $token = $this->tokenStorage->getToken();
             $user = $token->getUser();
 
@@ -402,22 +422,41 @@ class WorkspaceController extends Controller
     public function deleteAction(Workspace $workspace)
     {
         $this->assertIsGranted('DELETE', $workspace);
-        $this->eventDispatcher->dispatch('log', new LogWorkspaceDeleteEvent($workspace));
-        $this->workspaceManager->deleteWorkspace($workspace);
-
-        $this->tokenUpdater->cancelUsurpation($this->tokenStorage->getToken());
-
+        $notDeletableNodes = $this->resourceManager->getNotDeletableResourcesByWorkspace($workspace);
         $sessionFlashBag = $this->session->getFlashBag();
-        $sessionFlashBag->add(
-            'success',
-            $this->translator->trans(
-                'workspace_delete_success_message',
-                ['%workspaceName%' => $workspace->getName()],
-                'platform'
-            )
-        );
 
-        return new Response('success', 204);
+        if (0 === count($notDeletableNodes)) {
+            $this->eventDispatcher->dispatch('log', new LogWorkspaceDeleteEvent($workspace));
+            $this->workspaceManager->deleteWorkspace($workspace);
+
+            $this->tokenUpdater->cancelUsurpation($this->tokenStorage->getToken());
+
+            $sessionFlashBag->add(
+                'success',
+                $this->translator->trans(
+                    'workspace_delete_success_message',
+                    ['%workspaceName%' => $workspace->getName()],
+                    'platform'
+                )
+            );
+
+            return new Response('success', 204);
+        } else {
+            $sessionFlashBag->add(
+                'error',
+                $this->translator->trans(
+                    'workspace_not_deletable_resources_error_message',
+                    ['%workspaceName%' => $workspace->getName()],
+                    'platform'
+                )
+            );
+
+            foreach ($notDeletableNodes as $node) {
+                $sessionFlashBag->add('error', $node->getPathForDisplay());
+            }
+
+            return new Response('error', 403);
+        }
     }
 
     /**
@@ -441,7 +480,7 @@ class WorkspaceController extends Controller
 
         if (!empty($_breadcrumbs)) {
             //for manager.js, id = 0 => "no root".
-            if ($_breadcrumbs[0] !== 0) {
+            if (0 !== $_breadcrumbs[0]) {
                 $rootId = $_breadcrumbs[0];
             } else {
                 $rootId = $_breadcrumbs[1];
@@ -528,11 +567,11 @@ class WorkspaceController extends Controller
         $this->eventDispatcher->dispatch('log', new LogWorkspaceToolReadEvent($workspace, $toolName));
         $this->eventDispatcher->dispatch('log', new LogWorkspaceEnterEvent($workspace));
         // Add workspace to recent workspaces if user is not Usurped
-        if ($this->tokenStorage->getToken()->getUser() !== 'anon.' && !$this->isUsurpator($this->tokenStorage->getToken())) {
+        if ('anon.' !== $this->tokenStorage->getToken()->getUser() && !$this->isUsurpator($this->tokenStorage->getToken())) {
             $this->workspaceManager->addRecentWorkspaceForUser($this->tokenStorage->getToken()->getUser(), $workspace);
         }
 
-        if ($toolName === 'resource_manager') {
+        if ('resource_manager' === $toolName) {
             $this->session->set('isDesktop', false);
         }
 
@@ -565,7 +604,7 @@ class WorkspaceController extends Controller
         $response = new JsonResponse('', 401);
         $isGranted = $this->authorization->isGranted('OPEN', $workspace);
 
-        if ($isGranted === true) {
+        if (true === $isGranted) {
             $widgetData = [];
             $widgetHomeTabConfigs = $this->homeTabManager
                 ->getVisibleWidgetConfigsByTabIdAndWorkspace($homeTabId, $workspace);
@@ -671,14 +710,7 @@ class WorkspaceController extends Controller
      *     name="claro_workspace_open",
      *     options={"expose"=true}
      * )
-     * @EXT\ParamConverter(
-     *      "workspace",
-     *      class="ClarolineCoreBundle:Workspace\Workspace",
-     *      options={"id" = "workspaceId", "strictId" = true}
-     * )
-     * @SEC\PreAuthorize("canAccessWorkspace('OPEN')")
-     *
-     * Open the first tool of a workspace.
+     * @EXT\ParamConverter("workspace",  options={"mapping": {"workspaceId": "id"}})
      *
      * @param Workspace $workspace
      *
@@ -688,6 +720,7 @@ class WorkspaceController extends Controller
      */
     public function openAction(Workspace $workspace)
     {
+        $this->assertIsGranted('OPEN', $workspace);
         $options = $workspace->getOptions();
 
         if (!is_null($options)) {
@@ -715,20 +748,18 @@ class WorkspaceController extends Controller
         }
 
         $tool = $this->workspaceManager->getFirstOpenableTool($workspace);
+        //small hack for administrators otherwise they can't open it
+        $toolName = $tool ? $tool->getName() : 'home';
 
-        if ($tool) {
-            $route = $this->router->generate(
-                'claro_workspace_open_tool',
-                [
-                    'workspaceId' => $workspace->getId(),
-                    'toolName' => $tool->getName(),
-                ]
-            );
+        $route = $this->router->generate(
+            'claro_workspace_open_tool',
+            [
+                'workspaceId' => $workspace->getId(),
+                'toolName' => $toolName,
+            ]
+        );
 
-            return new RedirectResponse($route);
-        }
-
-        $this->throwWorkspaceDeniedException($workspace);
+        return new RedirectResponse($route);
     }
 
     /**
@@ -1221,7 +1252,7 @@ class WorkspaceController extends Controller
     ) {
         $response = new JsonResponse('', 401);
         $isGranted = $this->authorization->isGranted('OPEN', $workspace);
-        if ($isGranted === true) {
+        if (true === $isGranted) {
             $workspaceHomeTabConfigs = $this->homeTabManager
                 ->getVisibleWorkspaceHomeTabConfigsByWorkspace($workspace);
 
@@ -1373,7 +1404,7 @@ class WorkspaceController extends Controller
                 $urlImport = true;
                 $url = $form->get('fileUrl')->getData();
                 $template = $this->importFromUrl($url);
-                if ($template === null) {
+                if (null === $template) {
                     $msg = $this->translator->trans(
                         'invalid_host',
                         ['%url%' => $url],
@@ -1383,7 +1414,7 @@ class WorkspaceController extends Controller
                 }
             }
 
-            if ($template !== null) {
+            if (null !== $template) {
                 $workspace = $form->getData();
                 $workspace->setCreator($this->tokenStorage->getToken()->getUser());
                 $this->workspaceManager->create($workspace, $template);
@@ -1428,7 +1459,7 @@ class WorkspaceController extends Controller
 
         //check if url is a valid provider
         $retcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        if ($retcode === 200 || $retcode === 201) {
+        if (200 === $retcode || 201 === $retcode) {
             $import_sub_folder = 'import'.DIRECTORY_SEPARATOR;
             $import_folder_path = $this->container->get('claroline.config.platform_config_handler')->getParameter('tmp_dir').DIRECTORY_SEPARATOR.$import_sub_folder;
             $fs = new FileSystem();
@@ -1482,7 +1513,7 @@ class WorkspaceController extends Controller
         $wsMax = 10,
         $wsSearch = ''
     ) {
-        if ($wsSearch === '') {
+        if ('' === $wsSearch) {
             $workspaces = $this->workspaceManager
                 ->getDisplayableWorkspacesPager($page, $wsMax);
         } else {
@@ -1520,7 +1551,7 @@ class WorkspaceController extends Controller
     private function isUsurpator($token)
     {
         foreach ($token->getRoles() as $role) {
-            if ($role->getRole() === 'ROLE_USURPATE_WORKSPACE_ROLE' || $role instanceof SwitchUserRole) {
+            if ('ROLE_USURPATE_WORKSPACE_ROLE' === $role->getRole() || $role instanceof SwitchUserRole) {
                 return true;
             }
         }

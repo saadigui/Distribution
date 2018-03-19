@@ -11,12 +11,12 @@
 
 namespace Claroline\CoreBundle\Manager;
 
+use Claroline\AppBundle\Event\StrictDispatcher;
+use Claroline\AppBundle\Persistence\ObjectManager;
 use Claroline\CoreBundle\Entity\User;
-use Claroline\CoreBundle\Entity\Workspace\WorkspaceRegistrationQueue;
 use Claroline\CoreBundle\Entity\Workspace\Workspace;
-use Claroline\CoreBundle\Event\StrictDispatcher;
+use Claroline\CoreBundle\Entity\Workspace\WorkspaceRegistrationQueue;
 use Claroline\CoreBundle\Pager\PagerFactory;
-use Claroline\CoreBundle\Persistence\ObjectManager;
 use JMS\DiExtraBundle\Annotation as DI;
 
 /**
@@ -57,22 +57,11 @@ class WorkspaceUserQueueManager
         $this->wksQrepo = $this->objectManager->getRepository('ClarolineCoreBundle:Workspace\WorkspaceRegistrationQueue');
     }
 
-    public function getAll(Workspace $workspace, $page = 1, $max = 50, $search = '')
-    {
-        if (empty($search)) {
-            $query = $this->wksQrepo->findByWorkspace($workspace);
-        } else {
-            $query = $this->wksQrepo->findByWorkspaceAndSearch($workspace, $search);
-        }
-
-        return $this->pagerFactory->createPagerFromArray($query, $page, $max);
-    }
-
     public function validateRegistration(WorkspaceRegistrationQueue $wksqrq)
     {
         $this->roleManager->associateRolesToSubjects(
-            array($wksqrq->getUser()),
-            array($wksqrq->getRole()),
+            [$wksqrq->getUser()],
+            [$wksqrq->getRole()],
             true
         );
         $this->objectManager->remove($wksqrq);
@@ -84,7 +73,7 @@ class WorkspaceUserQueueManager
         $this->dispatcher->dispatch(
             'log',
             'Log\LogWorkspaceRegistrationDecline',
-            array($wksqrq)
+            [$wksqrq]
         );
 
         $this->objectManager->remove($wksqrq);

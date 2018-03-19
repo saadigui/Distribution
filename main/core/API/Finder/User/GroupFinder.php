@@ -11,7 +11,7 @@
 
 namespace Claroline\CoreBundle\API\Finder\User;
 
-use Claroline\CoreBundle\API\FinderInterface;
+use Claroline\AppBundle\API\FinderInterface;
 use Claroline\CoreBundle\Entity\User;
 use Doctrine\ORM\QueryBuilder;
 use JMS\DiExtraBundle\Annotation as DI;
@@ -86,6 +86,12 @@ class GroupFinder implements FinderInterface
                   $qb->leftJoin('obj.roles', 'r');
                   $qb->andWhere('r.uuid IN (:roleIds)');
                   $qb->setParameter('roleIds', is_array($filterValue) ? $filterValue : [$filterValue]);
+                  break;
+              case 'workspace':
+                  $qb->leftJoin('obj.roles', 'wsgroles');
+                  $qb->leftJoin('wsgroles.workspace', 'rws');
+                  $qb->andWhere('rws.uuid = (:workspaceId)');
+                  $qb->setParameter('workspaceId', $filterValue);
                   break;
                 default:
                     if (is_bool($filterValue)) {
