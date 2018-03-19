@@ -1,4 +1,5 @@
 import tinymce from 'tinymce/tinymce'
+import invariant from 'invariant'
 
 import {url} from '#/main/core/api'
 import {trans} from '#/main/core/translation'
@@ -13,33 +14,31 @@ function openResourcePicker(editor) {
     resourceManager.createPicker('tinyMcePicker', {
       isTinyMce: true,
       isPickerMultiSelectAllowed: false,
-      callback: (nodes, currentDirectoryId, isWidget) => {
-        let embedUrl
-        if (!isWidget) {
-          // embed resourceNode
-          const nodeId = Object.keys(nodes)[0]
-          const mimeType = nodes[Object.keys(nodes)][2] !== '' ? nodes[Object.keys(nodes)][2] : 'unknown/mimetype'
+      callback: (nodes = {}) => {
+        // embed resourceNode
+        const nodeId = Object.keys(nodes)[0]
+        const mimeType = nodes[nodeId][2] !== '' ? nodes[nodeId][2] : 'unknown/mimetype'
 
-          embedUrl = url(['claro_resource_embed', {node: nodeId, type: mimeType, extension: mimeType}]) // todo fix params
-        } else {
-          // embed widget
-          const workspaceId = nodes[0].parents.workspace
-          const homeTabId = nodes[0].parents.tab
-          const widgetId = nodes[0].id
+        const typeParts = mimeType.split('/')
 
-          embedUrl = url(['claro_widget_embed', {workspaceId: workspaceId, homeTabId: homeTabId, widgetId: widgetId}])
-        }
-
-        // todo : use fetch instead
-        $.ajax(embedUrl)
-          .done(function (data) {
-            editor.insertContent(data)
+        fetch(
+          url(['claro_resource_embed', {node: nodeId, type: typeParts[0], extension: typeParts[1]}]),
+          {
+            method: 'GET',
+            credentials: 'include'
+          }
+        )
+          .then(response => {
+            if (response.ok) {
+              return response.text()
+            }
           })
-          .error(function () {
-            editor.notificationManager.open({
-              text: trans('error_occured'),
-              type: 'error'
-            })
+          .then(responseText => editor.insertContent(responseText))
+          .catch((error) => {
+            // creates log error
+            invariant(false, error.message)
+            // displays generic error in ui
+            editor.notificationManager.open({type: 'error', text: trans('error_occured')})
           })
       }
     }, true)

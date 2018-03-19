@@ -6,8 +6,6 @@ import {locale} from '#/main/core/intl/locale'
 import {platformConfig} from '#/main/core/platform'
 import {theme} from '#/main/core/scaffolding/asset'
 
-const home = window.Claroline.Home
-
 const config = {
   language: locale(),
   theme: 'modern',
@@ -34,7 +32,7 @@ const config = {
       // todo check if url
       const link = args.content.trim()
 
-      home.canGenerateContent(link, function (data) {
+      window.Claroline.Home.canGenerateContent(link, function (data) {
         args.content = '<div class="url-content">' + data + '</div>'
       })
     }
