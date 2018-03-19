@@ -1,15 +1,7 @@
-import {makeReducer} from '#/main/core/scaffolding/reducer'
-
-import {
-  TEXT_UPDATE
-} from '#/main/core/resources/text/editor/actions'
+import {makeFormReducer} from '#/main/core/data/form/reducer'
 
 const reducer = {
-  text: makeReducer({}, {
-    [TEXT_UPDATE]: (state, action) => {
-      return action.text
-    }
-  })
+  textForm: makeFormReducer('textForm', {}, {})
 }
 
 export {

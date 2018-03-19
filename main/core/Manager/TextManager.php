@@ -55,4 +55,33 @@ class TextManager
 
         return $revisionRepo->getLastRevision($text)->getContent();
     }
+
+    public function createRevision(Text $text, $content, User $user = null)
+    {
+        $version = $text->getVersion() + 1;
+
+        $revision = new Revision();
+        $revision->setContent($content);
+        $revision->setUser($user);
+        $revision->setText($text);
+        $revision->setVersion($version);
+        $text->setVersion($version);
+        $this->om->persist($revision);
+        $this->om->persist($text);
+//        $workspace = $old->getResourceNode()->getWorkspace();
+//        $usersToNotify = $workspace ?
+//            $this->container->get('claroline.manager.user_manager')
+//                ->getUsersByWorkspaces(array($workspace), null, null, false) :
+//            array();
+//
+//        $this->get('claroline.event.event_dispatcher')
+//            ->dispatch(
+//                'log',
+//                'Log\LogEditResourceText',
+//                array('node' => $old->getResourceNode(), 'usersToNotify' => $usersToNotify)
+//            );
+        $this->om->flush();
+
+        return $revision;
+    }
 }
