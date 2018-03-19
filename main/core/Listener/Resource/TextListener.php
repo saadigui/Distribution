@@ -146,6 +146,31 @@ class TextListener implements ContainerAwareInterface
         $event->setCopy($copy);
     }
 
+//    /**
+//     * @DI\Observe("open_text")
+//     *
+//     * @param OpenResourceEvent $event
+//     */
+//    public function onOpen(OpenResourceEvent $event)
+//    {
+//        $text = $event->getResource();
+//        $collection = new ResourceCollection([$text->getResourceNode()]);
+//        $isGranted = $this->container->get('security.authorization_checker')->isGranted('EDIT', $collection);
+//        $revisionRepo = $this->container->get('doctrine.orm.entity_manager')
+//            ->getRepository('ClarolineCoreBundle:Resource\Revision');
+//        $content = $this->container->get('templating')->render(
+//            'ClarolineCoreBundle:Text:index_old.html.twig',
+//            [
+//                'text' => $revisionRepo->getLastRevision($text)->getContent(),
+//                '_resource' => $text,
+//                'isEditGranted' => $isGranted,
+//            ]
+//        );
+//        $response = new Response($content);
+//        $event->setResponse($response);
+//        $event->stopPropagation();
+//    }
+
     /**
      * @DI\Observe("open_text")
      *
@@ -154,16 +179,13 @@ class TextListener implements ContainerAwareInterface
     public function onOpen(OpenResourceEvent $event)
     {
         $text = $event->getResource();
-        $collection = new ResourceCollection([$text->getResourceNode()]);
-        $isGranted = $this->container->get('security.authorization_checker')->isGranted('EDIT', $collection);
         $revisionRepo = $this->container->get('doctrine.orm.entity_manager')
             ->getRepository('ClarolineCoreBundle:Resource\Revision');
         $content = $this->container->get('templating')->render(
             'ClarolineCoreBundle:Text:index.html.twig',
             [
-                'text' => $revisionRepo->getLastRevision($text)->getContent(),
+                'text' => $revisionRepo->getLastRevision($text),
                 '_resource' => $text,
-                'isEditGranted' => $isGranted,
             ]
         );
         $response = new Response($content);
