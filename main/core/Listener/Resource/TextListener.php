@@ -158,7 +158,7 @@ class TextListener implements ContainerAwareInterface
         $followerResource = $user !== 'anon.' ?
             $this->container->get('icap.notification.manager')->getFollowerResource(
                 $user->getId(),
-                $text->getId(),
+                $text->getResourceNode()->getId(),
                 'Claroline\CoreBundle\Entity\Resource\Text'
             ) :
             null;
@@ -167,7 +167,7 @@ class TextListener implements ContainerAwareInterface
             [
                 'text' => $text,
                 '_resource' => $text,
-                'notify' => !empty($followerResource),
+                'resourceNotification' => !empty($followerResource),
             ]
         );
         $response = new Response($content);

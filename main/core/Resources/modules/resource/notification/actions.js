@@ -1,25 +1,25 @@
 import {API_REQUEST} from '#/main/core/api/actions'
 import {makeActionCreator} from '#/main/core/scaffolding/actions'
 
-export const NOTIFY_TOGGLE  = 'NOTIFY_TOGGLE'
+export const RESOURCE_NOTIFICATION_UPDATE  = 'RESOURCE_NOTIFICATION_UPDATE'
 
 export const actions = {}
 
-actions.toggleNotification = (id, value) => {
+actions.changeResourceNotification = (id, resourceClass, value) => {
   const url = value ? 'icap_notification_resource_enable' : 'icap_notification_resource_disable'
 
   return {
     [API_REQUEST]: {
       url: [url, {
         resourceId: id,
-        resourceClass: window.btoa('Claroline\\CoreBundle\\Entity\\Resource\\Text')
+        resourceClass: window.btoa(resourceClass)
       }],
       request: {
         method: 'PUT'
       },
-      success: (data, dispatch) => dispatch(actions.toggleNotify(value))
+      success: (data, dispatch) => dispatch(actions.updateResourceNotification(value))
     }
   }
 }
 
-actions.toggleNotify = makeActionCreator(NOTIFY_TOGGLE, 'value')
+actions.updateResourceNotification = makeActionCreator(RESOURCE_NOTIFICATION_UPDATE, 'value')

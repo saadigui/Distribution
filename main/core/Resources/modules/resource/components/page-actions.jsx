@@ -4,7 +4,9 @@ import classes from 'classnames'
 
 /*import {generateUrl} from '#/main/core/api/router'*/
 import {matchPath, withRouter} from '#/main/core/router'
+import {trans} from '#/main/core/translation'
 import {t_res} from '#/main/core/resource/translation'
+import {currentUser} from '#/main/core/user/current'
 
 import {getSimpleAccessRule, hasCustomRules} from '#/main/core/resource/rights'
 
@@ -19,6 +21,8 @@ import {
   FullScreenAction,
   MoreAction
 } from '#/main/core/layout/page/components/page-actions.jsx'
+
+const authenticatedUser = currentUser()
 
 const PublishAction = props =>
   <PageAction
@@ -123,6 +127,18 @@ function getMoreActions(resourceNode, props) {
         resourceNode: resourceNode,
         save: props.updateNode
       })
+    }, {
+      icon: 'fa fa-fw fa-bell-o',
+      label: trans('follow'),
+      group: trans('notification'),
+      displayed: authenticatedUser && props.resourceNotification !== null && !props.resourceNotification,
+      action: () => props.changeResourceNotification(resourceNode.autoId, resourceNode.meta.class, true)
+    }, {
+      icon: 'fa fa-fw fa-bell',
+      label: trans('unfollow'),
+      group: trans('notification'),
+      displayed: authenticatedUser && props.resourceNotification !== null && props.resourceNotification,
+      action: () => props.changeResourceNotification(resourceNode.autoId, resourceNode.meta.class, false)
     }
   ]
 

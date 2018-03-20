@@ -5,6 +5,7 @@ import {makeReducer} from '#/main/core/scaffolding/reducer'
 import {makePageReducer} from '#/main/core/layout/page/reducer'
 
 import {reducer as evaluationReducer} from '#/main/core/resource/evaluation/reducer'
+import {reducer as notificationReducer} from '#/main/core/resource/notification/reducer'
 
 import {
   RESOURCE_UPDATE_PUBLICATION,
@@ -48,6 +49,8 @@ function makeResourceReducer(initialState = {}, customReducer = {}) {
 
   // todo maybe make it customizable (like forms and lists)
   resourceReducer.evaluation = evaluationReducer
+
+  resourceReducer.resourceNotification = notificationReducer
 
   // get custom keys
   const rest = difference(Object.keys(customReducer), ['resourceNode', 'evaluation'])

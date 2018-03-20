@@ -5,6 +5,8 @@ import {connectPage} from '#/main/core/layout/page/connect'
 import {select as resourceSelect} from '#/main/core/resource/selectors'
 import {actions as resourceActions} from '#/main/core/resource/actions'
 import {ResourcePage} from '#/main/core/resource/components/page.jsx'
+import {select as notificationSelect} from '#/main/core/resource/notification/selectors'
+import {actions as notificationActions} from '#/main/core/resource/notification/actions'
 
 /**
  * Connected container for resources.
@@ -19,7 +21,8 @@ import {ResourcePage} from '#/main/core/resource/components/page.jsx'
  */
 const ResourcePageContainer = connectPage(
   (state) => ({
-    resourceNode: resourceSelect.resourceNode(state)
+    resourceNode: resourceSelect.resourceNode(state),
+    resourceNotification: notificationSelect.resourceNotification(state),
   }),
   (dispatch) => ({
     updateNode(resourceNode) {
@@ -30,6 +33,9 @@ const ResourcePageContainer = connectPage(
     },
     togglePublication(resourceNode) {
       dispatch(resourceActions.togglePublication(resourceNode))
+    },
+    changeResourceNotification(id, resourceClass, value) {
+      dispatch(notificationActions.changeResourceNotification(id, resourceClass, value))
     }
   })
 )(ResourcePage)

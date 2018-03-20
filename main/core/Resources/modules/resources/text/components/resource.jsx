@@ -2,20 +2,16 @@ import React from 'react'
 import {PropTypes as T} from 'prop-types'
 import {connect} from 'react-redux'
 
-import {currentUser} from '#/main/core/user/current'
 import {trans} from '#/main/core/translation'
 import {select as resourceSelect} from '#/main/core/resource/selectors'
 import {actions as formActions} from '#/main/core/data/form/actions'
 import {RoutedPageContent} from '#/main/core/layout/router'
 import {select as formSelect} from '#/main/core/data/form/selectors'
 import {Text as TextTypes} from '#/main/core/resources/text/prop-types'
-import {actions} from '#/main/core/resources/text/actions'
 
 import {ResourcePageContainer} from '#/main/core/resource/containers/page.jsx'
 import {Player} from '#/main/core/resources/text/player/components/player.jsx'
 import {Editor} from '#/main/core/resources/text/editor/components/editor.jsx'
-
-const user = currentUser()
 
 const Resource = props => {
   const routes = [
@@ -50,18 +46,6 @@ const Resource = props => {
           label: trans('show_overview'),
           displayed: props.canEdit,
           action: '#/'
-        },
-        {
-          icon: 'fa fa-fw fa-bell',
-          label: trans('enable_notifications', {}, 'notification'),
-          displayed: user && !props.notify,
-          action: () => props.toggleNotification(props.text.id, true)
-        },
-        {
-          icon: 'fa fa-fw fa-bell-slash',
-          label: trans('disable_notifications', {}, 'notification'),
-          displayed: user && props.notify,
-          action: () => props.toggleNotification(props.text.id, false)
         }
       ]}
     >
@@ -82,8 +66,6 @@ Resource.propTypes = {
   }).isRequired,
   canEdit: T.bool.isRequired,
   saveEnabled: T.bool.isRequired,
-  notify: T.bool.isRequired,
-  toggleNotification: T.func.isRequired,
   resetForm: T.func.isRequired,
   saveForm: T.func.isRequired
 }
@@ -92,12 +74,10 @@ const TextResource = connect(
   state => ({
     text: state.text,
     resource: state.resourceNode,
-    notify: state.notify,
     canEdit: resourceSelect.editable(state),
     saveEnabled: formSelect.saveEnabled(formSelect.form(state, 'textForm'))
   }),
   (dispatch) => ({
-    toggleNotification: (id, value) => dispatch(actions.toggleNotification(id, value)),
     resetForm: (formData) => dispatch(formActions.resetForm('textForm', formData)),
     saveForm: (id) => dispatch(formActions.saveForm('textForm', ['apiv2_resource_text_update', {id: id}]))
   })

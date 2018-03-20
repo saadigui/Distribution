@@ -60,6 +60,8 @@ class ResourcePage extends Component {
             togglePublication={this.props.togglePublication}
             showModal={this.props.showModal}
             updateNode={this.props.updateNode}
+            resourceNotification={this.props.resourceNotification}
+            changeResourceNotification={this.props.changeResourceNotification}
           />
         </PageHeader>
 
@@ -114,7 +116,11 @@ ResourcePage.propTypes = {
 
   // alerts management
   alerts: T.array,
-  removeAlert: T.func
+  removeAlert: T.func,
+
+  // resource notification
+  resourceNotification: T.bool,
+  changeResourceNotification: T.func
 }
 
 ResourcePage.defaultProps = {
