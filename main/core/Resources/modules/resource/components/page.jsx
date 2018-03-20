@@ -76,6 +76,9 @@ class ResourcePage extends Component {
 ResourcePage.propTypes = {
   resourceNode: T.shape({
     name: T.string.isRequired,
+    meta: T.shape({
+      type: T.string.isRequired
+    }).isRequired,
     parameters: T.shape({
       fullscreen: T.bool.isRequired
     }).isRequired

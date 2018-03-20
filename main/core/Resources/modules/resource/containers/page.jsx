@@ -1,5 +1,3 @@
-import React from 'react'
-
 import {connectPage} from '#/main/core/layout/page/connect'
 
 import {select as resourceSelect} from '#/main/core/resource/selectors'
@@ -22,7 +20,7 @@ import {actions as notificationActions} from '#/main/core/resource/notification/
 const ResourcePageContainer = connectPage(
   (state) => ({
     resourceNode: resourceSelect.resourceNode(state),
-    resourceNotification: notificationSelect.resourceNotification(state),
+    resourceNotification: notificationSelect.resourceNotification(state)
   }),
   (dispatch) => ({
     updateNode(resourceNode) {
