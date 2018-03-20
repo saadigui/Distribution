@@ -153,11 +153,21 @@ class TextListener implements ContainerAwareInterface
     public function onOpen(OpenResourceEvent $event)
     {
         $text = $event->getResource();
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        $followerResource = $user !== 'anon.' ?
+            $this->container->get('icap.notification.manager')->getFollowerResource(
+                $user->getId(),
+                $text->getId(),
+                'Claroline\CoreBundle\Entity\Resource\Text'
+            ) :
+            null;
         $content = $this->container->get('templating')->render(
             'ClarolineCoreBundle:Text:index.html.twig',
             [
                 'text' => $text,
                 '_resource' => $text,
+                'notify' => !empty($followerResource),
             ]
         );
         $response = new Response($content);
